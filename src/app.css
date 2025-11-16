@@ -1,0 +1,56 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton-svelte';
+@import '@skeletonlabs/skeleton/themes/cerberus';
+
+@import '@fontsource-variable/recursive';
+
+@theme {
+	--font-sans: 'Recursive', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--font-mono:
+		'Recursive', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
+}
+
+html {
+	font-family: var(--font-sans);
+	font-size: 16px;
+}
+
+body {
+	font-family: inherit;
+	line-height: 1.55;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+code,
+pre,
+.kbd {
+	font-family: var(--font-mono);
+	font-size: 0.9em;
+}
+
+dialog,
+dialog::backdrop {
+	--anim-duration: 200ms;
+	transition:
+		display var(--anim-duration) allow-discrete,
+		overlay var(--anim-duration) allow-discrete,
+		opacity var(--anim-duration);
+	opacity: 0;
+}
+
+dialog[open],
+dialog[open]::backdrop {
+	opacity: 1;
+}
+
+@starting-style {
+	dialog[open],
+	dialog[open]::backdrop {
+		opacity: 0;
+	}
+}
