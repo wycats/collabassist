@@ -30,12 +30,11 @@ Each story:
      - Option 2: Dashboard – overview screen + dedicated project pages.
      - Option 3: Workspace – sidebar navigation with project/task sections.
 5. **User** picks Option 2: Dashboard, and the chat inserts a **Selection Summary card** to document the decision inline without synthetic narration. The same decision is reflected in a pinned planning strip that always shows the current intent and architecture choice.
-6. **System** responds with a **Mockup card** (in the current stub, picking the “workspace” proposal yields this mockup, while the other proposals still surface a lens until we flesh out more inspect artifacts):
-   - Regions:
-     - Header (global nav, profile, settings).
-     - Main dashboard (KPIs, active projects).
-     - Side panel (filters, quick actions).
-   - Layout metaphor: `"shelf"` for the dashboard, `"bookcase"` for project listing.
+6. **System** responds with a **Mockup** or **Lens** card depending on the selected proposal:
+  - “Minimal” now yields a mockup that splits the viewport into toolbar, projects list, and task overlay regions.
+  - “Dashboard” returns a lens that enumerates inferred sections (KPIs, grids, calls to action).
+  - “Workspace” yields a different mockup that emphasizes the sidebar + canvas split.
+  - Each mockup is still rendered as a data-first sketch with layout metaphors (`"shelf"`, `"bookcase"`, `"library"`).
 
 ### Phase Sequence
 
@@ -66,7 +65,8 @@ Each story:
   - `InterpretCard.svelte` / `ProposeCard.svelte` render options as clickable items and fire `onSubmit({ option })` events.
   - `SelectionSummaryCard.svelte` drops inline after each selection to keep a timeline of committed choices.
   - A small pinned planning panel (or strip) mirrors the latest interpret/propose decisions and the current inspect artifact (mockup/lens), so the user always sees the current plan even as the chat scrolls.
-  - Mockup card shows regions grouped by layout, e.g. sections with labels and notes, and will evolve into a data-oriented sketch with optional JSON peek so it never feels like high-fidelity UI.
+  - Mockup card now shows grouped regions via layout bands plus an inline JSON toggle; the same compact representation appears inside the planning panel for mockup artifacts.
+  - Lens card renders a structured summary (sections + calls to action) alongside a JSON toggle, and the planning panel mirrors that structure when a lens is pinned.
   - After an interpret option is selected, the client immediately calls `/api/cards` again with `phase = "shape"` to fetch the follow-up `ProposeCard` (Option 3 in `PLAN.md`), and a proposal selection does the same for `phase = "inspect"`.
 
 - **Why this matters (link to Vitaly)**

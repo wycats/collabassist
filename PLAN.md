@@ -234,9 +234,8 @@ Each slice can be refined over time, but we avoid leaving half-wired plumbing wi
 - **Status (current)**
   - `LensCard` is wired through the registry, and the endpoint returns lens cards for `phase = 'inspect'`.
   - Proposal selections already trigger the `inspect` follow-up, and the pinned `PlanningPanel.svelte` now mirrors the interpret/propose picks plus the current inspect artifact.
-  - Choosing the “workspace” proposal path now returns a stubbed `MockupCard`, giving us a place to exercise structural artifacts before we hook up the real model.
-  - We still owe more deliberate visual treatment for mockups (region grouping, lightweight layout hints, JSON toggle) and richer inspect payloads for the other proposals.
-  - **Next up**: design the stacked-region sketch (group shelves/bookcases with data attributes, add a “View JSON” toggle/tail panel, and extend mockups beyond the workspace proposal so each path returns a distinctive inspect artifact.
+  - Choosing the “minimal” and “workspace” paths now returns distinct mockup sketches, while “dashboard” yields a lens; all inspect artifacts show inline JSON toggles and the planning panel mirrors the active artifact (mockup regions or lens summary) using the same presenter components.
+  - **Next up**: diversify inspect payloads for any new proposal branches, and wire the same presenters into future artifact side panels so mockups/lenses stay consistent when they graduate beyond the thread.
 
 - **"Done" when**
   - User can experience the full loop from **Story 1** in `docs/ai/ai-ux-stories.md`:

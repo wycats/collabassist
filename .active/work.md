@@ -6,29 +6,19 @@
 - Ensure each proposal path produces a distinct inspect artifact (lens vs. mockup variants) so the inspect phase carries real information.
 - Mirror whatever we render in the thread inside the pinned planning panel to maintain a single source of truth.
 
-### Improvements to Implement
+### Completed Improvements
 
-1. **Region grouping sketch**
-   - Treat the mockup as stacked shelves/bookcases/libraries instead of isolated cards.
-   - Use semantic markup (`<section>`, `<ul>`, `<li>`) plus `data-layout` attributes to convey the layout type.
-   - Visually hint hierarchy via padding/border accents per layout (`shelf` = narrow band, `bookcase` = medium block, `library` = full-width slab).
-   - Avoid new classes unless a helper block truly repeats; rely on scoped element selectors.
+1. **Region grouping sketch – done**
+   - `MockupRegions.svelte` renders shelves/bookcases/libraries with semantic markup, scoped selectors, and layout-based grouping.
 
-2. **Inline JSON toggle**
-   - Add a small “View JSON” affordance (native `<details>` or `popover` button) inside `MockupCard`.
-   - When toggled, reveal a `<pre>` (or minimal inspector) showing the `MockupCard` spec.
-   - Keep it lightweight so it reinforces the data-oriented framing without overwhelming the sketch.
+2. **Inline JSON toggle – done**
+   - Mockup and lens cards now expose `<details>` inspectors; planning panel mirrors them with compact presenters.
 
-3. **Distinct artifacts per proposal**
-   - Extend `/api/cards` stubs so each proposal option returns a unique inspect artifact:
-     - e.g. “Workspace layout” → mockup with navigation + content regions.
-     - “Lens deep dive” → lens card highlighting flows/JSON.
-     - “Command palette prototype” → mockup emphasizing action rows, etc.
-   - Later, align prompts so the model emits these shapes, but for now hard-code representative differences.
+3. **Distinct artifacts per proposal – done**
+   - `/api/cards` emits unique inspect artifacts: minimal + workspace produce different mockups, dashboard surfaces a lens summary.
 
-4. **Planning panel sync**
-   - Reuse the same mockup presenter (or snippet) inside `PlanningPanel` so pinned artifacts match the thread view.
-   - If the JSON toggle exists in the card, consider a simplified badge/link in the panel that opens the same data.
+4. **Planning panel sync – done**
+   - The pinned plan reuses the mockup presenter and the new `LensSummary` component so inspect artifacts stay visible outside the thread.
 
 ### Open Questions
 
@@ -38,7 +28,5 @@
 
 ### Next Steps
 
-- Prototype the stacked-region markup + styles directly in `MockupCard.svelte`.
-- Add the `<details>`-based JSON reveal.
-- Update `/api/cards` stubs for multiple inspect artifacts.
-- Factor a shared presenter for planning panel reuse.
+- Extend inspect payloads for future proposal branches (e.g. command palette prototype) so each option has a signature artifact.
+- Plan how mockup/lens presenters migrate into the eventual artifact side panel for longer-lived collaboration.

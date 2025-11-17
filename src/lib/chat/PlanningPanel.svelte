@@ -1,4 +1,5 @@
 <script lang="ts">
+	import LensSummary from '$lib/cards/LensSummary.svelte';
 	import MockupRegions from '$lib/cards/MockupRegions.svelte';
 	import { currentPlan } from '$lib/domain/planning-store';
 
@@ -75,6 +76,22 @@
 								class="mt-1 max-h-48 overflow-auto rounded bg-surface-200-800/40 p-2 text-[11px] leading-relaxed"
 							>
 								{JSON.stringify($currentPlan.inspect.card.regions, null, 2)}
+							</pre>
+						</details>
+					</div>
+				{:else if $currentPlan.inspect.kind === 'lens'}
+					<div class="mt-3 space-y-2 text-xs text-surface-600-200">
+						<LensSummary
+							lensType={$currentPlan.inspect.card.lensType}
+							payload={$currentPlan.inspect.card.payload}
+							variant="compact"
+						/>
+						<details>
+							<summary class="cursor-pointer text-[11px] font-medium tracking-wide uppercase">
+								View JSON
+							</summary>
+							<pre class="mt-1 max-h-48 overflow-auto rounded bg-surface-200-800/40 p-2">
+								{JSON.stringify($currentPlan.inspect.card.payload, null, 2)}
 							</pre>
 						</details>
 					</div>
