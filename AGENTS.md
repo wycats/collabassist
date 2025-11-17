@@ -56,27 +56,27 @@ type Role = 'user' | 'assistant' | 'system' | 'tool';
 type MessageKind = 'text' | 'card' | 'artifact-link';
 
 interface BaseMessage {
-  id: string;
-  role: Role;
-  kind: MessageKind;
-  createdAt: string;
+	id: string;
+	role: Role;
+	kind: MessageKind;
+	createdAt: string;
 }
 
 interface TextMessage extends BaseMessage {
-  kind: 'text';
-  content: string; // markdown-ish
+	kind: 'text';
+	content: string; // markdown-ish
 }
 
 interface CardMessage<T = unknown> extends BaseMessage {
-  kind: 'card';
-  cardType: string;  // e.g. 'choice', 'command', 'mockup'
-  spec: T;           // typed per cardType
+	kind: 'card';
+	cardType: string; // e.g. 'choice', 'command', 'mockup'
+	spec: T; // typed per cardType
 }
 
 interface ArtifactLinkMessage extends BaseMessage {
-  kind: 'artifact-link';
-  artifactId: string;
-  label?: string;
+	kind: 'artifact-link';
+	artifactId: string;
+	label?: string;
 }
 
 // Union
@@ -158,7 +158,16 @@ Agents should:
 - Style Bits components with Skeleton/Tailwind classes.
 - Keep Bits usage localized (e.g. inside a card or tool panel component).
 
-### 4.3 Baseline-First Interactions (Dialogs, Popovers, Etc.)
+### 4.3 Component Conventions (Svelte 5)
+
+- **Scoped CSS over BEM** – Components already scope styles, so prefer element selectors or lightweight class names. Avoid BEM-style naming; reach for classes only when necessary (e.g. targeting pseudo-states). See `docs/ui/style-guide.md` for concrete examples.
+- **Semantic structure first** – Reach for the native element that expresses the structure (`ul`/`li`, headings, `<section>`) instead of `div role="list"` or meaningless wrappers. Only add roles when the semantic element truly cannot represent the structure.
+- **No classes for scoping** – Scoped styles let us target `ul`, `li`, `[data-layout]`, etc. without inventing `chat__region-item` classes. Introduce a class only when the component needs multiple distinguishable instances of the same tag name.
+- **Data attributes for variants** – When a variant needs styling, use small data attributes (`data-layout="shelf"`) that also describe the state to screen readers and future contributors.
+- **Callbacks over Svelte events** – Instead of `createEventDispatcher`/`on:event`, pass callbacks via props (`onSubmit`, `onSelect`, etc.) so components compose like standard functions.
+- **Snippets over legacy slots** – Svelte 5 favors `Snippet`s for composition. Use snippets (`children?: Snippet`) in shared shells/layouts (`ChatShell`, `CardShell`, etc.) rather than old slot APIs.
+
+### 4.4 Baseline-First Interactions (Dialogs, Popovers, Etc.)
 
 Agents must treat Baseline web features as the **first choice** for interaction patterns and only reach for Bits UI when the platform is missing behavior.
 
@@ -193,12 +202,12 @@ A typical shape:
 // Pseudocode – actual types live in the codebase
 
 interface Artifact {
-  id: string;
-  type: string;      // e.g. 'doc', 'canvas', 'schema', 'layout', 'code'
-  data: unknown;     // JSON; typed per type via zod/TS
-  createdAt: string;
-  updatedAt: string;
-  createdBy: 'user' | 'assistant';
+	id: string;
+	type: string; // e.g. 'doc', 'canvas', 'schema', 'layout', 'code'
+	data: unknown; // JSON; typed per type via zod/TS
+	createdAt: string;
+	updatedAt: string;
+	createdBy: 'user' | 'assistant';
 }
 ```
 

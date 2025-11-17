@@ -70,7 +70,7 @@ These values are meant to be decision filters, especially when the plan doesn’
 
 - We lean on **Svelte 5**, Skeleton, Bits UI, native `<dialog>`, and Baseline web features.
 - We avoid importing entire component libraries or dialog frameworks when native elements and small components will do.
-- Layout and styling live in Svelte components, not giant global CSS blobs.
+- Layout and styling live in Svelte components, not giant global CSS blobs. See `docs/ui/style-guide.md` for the markup + scoped CSS conventions we follow day to day.
 
 ### 6. Shared language over one‑off hacks
 
