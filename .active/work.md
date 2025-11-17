@@ -28,5 +28,14 @@
 
 ### Next Steps
 
-- Extend inspect payloads for future proposal branches (e.g. command palette prototype) so each option has a signature artifact.
+- Evolve mockup rendering into a **skeleton layout**:
+  - Use stacked bands/blocks that visually imply sidebar, canvas, overlay, etc., with single-letter labels on the blocks and a legend underneath.
+  - Keep the labels minimal in the skeleton itself and let the legend carry the detailed region descriptions.
+  - Later, consider hover/click interactions that highlight the corresponding legend entry, but only after we are happy with the static skeleton.
+
+- Make the inspect artifact a **separate sidebar card**:
+  - In the main layout, render `PlanningPanel` and an `InspectArtifactCard` as sibling cards in the sidebar rather than nesting inspect details inside the planning card.
+  - Feed `InspectArtifactCard` from `currentPlan.inspect`, reusing the skeleton/legend presenters for mockup and lens artifacts.
+
+- Extend inspect payloads for future proposal branches (e.g. command palette prototype) so each option has a signature artifact and skeleton treatment.
 - Plan how mockup/lens presenters migrate into the eventual artifact side panel for longer-lived collaboration.
