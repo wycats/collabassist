@@ -84,6 +84,51 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json(mockupCard);
 		}
 
+		if (selectedOption === 'dashboard') {
+			const mockupCard: MockupCard = {
+				id: crypto.randomUUID(),
+				kind: 'mockup',
+				title: 'Dashboard overview sketch',
+				description:
+					'Hero metrics up top, spotlight cards, and a focus panel for the selected project.',
+				flowId: 'slice-1',
+				stepIndex: 2,
+				regions: [
+					{
+						id: 'nav-rail',
+						label: 'Navigation rail',
+						layout: 'library',
+						role: 'sidebar',
+						notes: 'Pinned spaces, alerts, quick create, profile switcher.'
+					},
+					{
+						id: 'overview-band',
+						label: 'Overview band',
+						layout: 'shelf',
+						role: 'switcher',
+						notes: 'Date range selector, KPI filters, announcement slot.'
+					},
+					{
+						id: 'metric-grid',
+						label: 'Metric cards',
+						layout: 'bookcase',
+						role: 'content',
+						notes: 'Velocity, blockers, team load, links to deeper dashboards.'
+					},
+					{
+						id: 'project-focus',
+						label: 'Project focus panel',
+						layout: 'library',
+						role: 'content',
+						notes:
+							'Split canvas with updates, timeline, and task highlights for the selected project.'
+					}
+				]
+			};
+
+			return json(mockupCard);
+		}
+
 		if (selectedOption === 'workspace') {
 			const mockupCard: MockupCard = {
 				id: crypto.randomUUID(),
@@ -96,19 +141,22 @@ export const POST: RequestHandler = async ({ request }) => {
 					{
 						id: 'sidebar',
 						label: 'Workspace sidebar',
-						layout: 'bookcase',
+						layout: 'library',
+						role: 'sidebar',
 						notes: 'Workspace selector, pinned projects, quick actions.'
 					},
 					{
 						id: 'overview-band',
 						label: 'Overview band',
 						layout: 'shelf',
+						role: 'switcher',
 						notes: 'Project health, notifications, upcoming work.'
 					},
 					{
 						id: 'canvas-split',
 						label: 'Canvas split',
 						layout: 'library',
+						role: 'content',
 						notes: 'Primary task board with contextual drawer on the right.'
 					}
 				]
@@ -149,7 +197,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			title: 'Here are a few ways we could shape this',
 			description: 'Pick the architecture that feels closest to your app so we can refine it.',
 			flowId: 'slice-1',
-			stepIndex: 1,
 			options: PROPOSE_OPTIONS.map((option) => ({ ...option }))
 		};
 
@@ -162,7 +209,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		title: 'What did you have in mind?',
 		description: 'Pick the interpretation that best matches your goal so we can dive in.',
 		flowId: 'slice-1',
-		stepIndex: 0,
 		options: INTERPRET_OPTIONS.map((option) => ({ ...option }))
 	};
 

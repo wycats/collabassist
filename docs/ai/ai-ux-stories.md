@@ -31,10 +31,11 @@ Each story:
      - Option 3: Workspace – sidebar navigation with project/task sections.
 5. **User** picks Option 2: Dashboard, and the chat inserts a **Selection Summary card** to document the decision inline without synthetic narration. The same decision is reflected in a pinned planning strip that always shows the current intent and architecture choice.
 6. **System** responds with a **Mockup** or **Lens** card depending on the selected proposal:
-  - “Minimal” now yields a mockup that splits the viewport into toolbar, projects list, and task overlay regions.
-  - “Dashboard” returns a lens that enumerates inferred sections (KPIs, grids, calls to action).
-  - “Workspace” yields a different mockup that emphasizes the sidebar + canvas split.
-  - Each mockup is still rendered as a data-first sketch with layout metaphors (`"shelf"`, `"bookcase"`, `"library"`).
+
+- “Minimal” now yields a mockup that splits the viewport into toolbar, projects list, and task overlay regions.
+- “Dashboard” yields a mockup that keeps hero metrics on top, spotlight cards in the middle, and a project focus panel alongside a navigation rail.
+- “Workspace” yields a different mockup that emphasizes the sidebar + canvas split.
+- Each mockup is still rendered as a data-first sketch with layout metaphors (`"shelf"`, `"bookcase"`, `"library"`).
 
 ### Phase Sequence
 
@@ -63,11 +64,13 @@ Each story:
 
 - **UI**
   - `InterpretCard.svelte` / `ProposeCard.svelte` render options as clickable items and fire `onSubmit({ option })` events.
-  - `SelectionSummaryCard.svelte` drops inline after each selection to keep a timeline of committed choices.
-  - A small pinned planning panel (or strip) mirrors the latest interpret/propose decisions and the current inspect artifact (mockup/lens), so the user always sees the current plan even as the chat scrolls.
+  - `InterpretCard.svelte` / `ProposeCard.svelte` render options as clickable items and fire `onSubmit({ option })` events; once an option is locked, its row stays visibly highlighted so you can always see which choice is active.
+  - `SelectionSummaryCard.svelte` drops inline after each selection as a lightweight, timeline-style strip with a dot+code token sitting on a vertical rail, keeping a readable history of committed choices without extra narration.
+  - A small pinned planning panel (or strip) mirrors the latest interpret/propose decisions and the current inspect artifact (mockup/lens), using the same dot+code tokens so the thread, summaries, and plan all stay visually coherent.
   - Mockup card now shows grouped regions via layout bands plus an inline JSON toggle; the same compact representation appears inside the planning panel for mockup artifacts.
   - Lens card renders a structured summary (sections + calls to action) alongside a JSON toggle, and the planning panel mirrors that structure when a lens is pinned.
   - After an interpret option is selected, the client immediately calls `/api/cards` again with `phase = "shape"` to fetch the follow-up `ProposeCard` (Option 3 in `PLAN.md`), and a proposal selection does the same for `phase = "inspect"`.
+  - If the user revisits an interpret or propose card and chooses a different option, the client rewinds the thread to that card and forks the journey from that point, updating subsequent summaries, mockups, and the pinned plan to match the new path.
 
 - **Why this matters (link to Vitaly)**
   - Encodes the _refinement journey_ as a designed flow, not a series of ad-hoc prompts.

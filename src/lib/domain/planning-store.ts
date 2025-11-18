@@ -12,17 +12,17 @@ type PlanSection = {
 
 type InspectSection =
 	| {
-		kind: 'lens';
-		label: string;
-		summary?: string;
-		card: LensCard;
-	}
+			kind: 'lens';
+			label: string;
+			summary?: string;
+			card: LensCard;
+	  }
 	| {
-		kind: 'mockup';
-		label: string;
-		summary?: string;
-		card: MockupCard;
-	};
+			kind: 'mockup';
+			label: string;
+			summary?: string;
+			card: MockupCard;
+	  };
 
 export interface CurrentPlan {
 	phase: Phase;

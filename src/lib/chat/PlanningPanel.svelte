@@ -1,7 +1,7 @@
 <script lang="ts">
-	import LensSummary from '$lib/cards/LensSummary.svelte';
-	import MockupRegions from '$lib/cards/MockupRegions.svelte';
 	import { currentPlan } from '$lib/domain/planning-store';
+	import { getOptionToken } from '$lib/domain/option-token';
+	import OptionToken from '$lib/ui/OptionToken.svelte';
 
 	const props = $props<{ title?: string }>();
 
@@ -28,7 +28,13 @@
 
 	<div class="space-y-4 px-4 py-4 text-sm">
 		<div>
-			<p class="text-surface-500-300 text-[10px] tracking-wide uppercase">Intent</p>
+			<p class="text-surface-500-300 flex items-center gap-1 text-[10px] tracking-wide uppercase">
+				{#if $currentPlan.interpret}
+					{@const token = getOptionToken($currentPlan.interpret.id)}
+					<OptionToken {token} size="sm" />
+				{/if}
+				<span>Intent</span>
+			</p>
 			{#if $currentPlan.interpret}
 				<p class="text-surface-900-50 font-medium">{$currentPlan.interpret.label}</p>
 				{#if renderSummary($currentPlan.interpret.summary)}
@@ -40,7 +46,13 @@
 		</div>
 
 		<div>
-			<p class="text-surface-500-300 text-[10px] tracking-wide uppercase">Path</p>
+			<p class="text-surface-500-300 flex items-center gap-1 text-[10px] tracking-wide uppercase">
+				{#if $currentPlan.propose}
+					{@const token = getOptionToken($currentPlan.propose.id)}
+					<OptionToken {token} size="sm" />
+				{/if}
+				<span>Path</span>
+			</p>
 			{#if $currentPlan.propose}
 				<p class="text-surface-900-50 font-medium">{$currentPlan.propose.label}</p>
 				{#if renderSummary($currentPlan.propose.summary)}
@@ -48,56 +60,6 @@
 				{/if}
 			{:else}
 				<p class="text-surface-500-300 text-xs">Choose a proposal to lock the path.</p>
-			{/if}
-		</div>
-
-		<div>
-			<p class="text-surface-500-300 text-[10px] tracking-wide uppercase">Inspect</p>
-			{#if $currentPlan.inspect}
-				<p class="text-surface-900-50 font-medium">
-					<span
-						class="rounded bg-surface-200-800 px-1.5 py-0.5 text-[10px] tracking-wide uppercase"
-					>
-						{$currentPlan.inspect.kind}
-					</span>
-					{$currentPlan.inspect.label}
-				</p>
-				{#if renderSummary($currentPlan.inspect.summary)}
-					<p class="text-surface-600-200 text-xs">{$currentPlan.inspect.summary}</p>
-				{/if}
-				{#if $currentPlan.inspect.kind === 'mockup'}
-					<div class="mt-3 space-y-3">
-						<MockupRegions regions={$currentPlan.inspect.card.regions} variant="compact" />
-						<details class="text-surface-600-200 text-xs">
-							<summary class="cursor-pointer text-[11px] font-medium tracking-wide uppercase">
-								View JSON
-							</summary>
-							<pre
-								class="mt-1 max-h-48 overflow-auto rounded bg-surface-200-800/40 p-2 text-[11px] leading-relaxed"
-							>
-								{JSON.stringify($currentPlan.inspect.card.regions, null, 2)}
-							</pre>
-						</details>
-					</div>
-				{:else if $currentPlan.inspect.kind === 'lens'}
-					<div class="mt-3 space-y-2 text-xs text-surface-600-200">
-						<LensSummary
-							lensType={$currentPlan.inspect.card.lensType}
-							payload={$currentPlan.inspect.card.payload}
-							variant="compact"
-						/>
-						<details>
-							<summary class="cursor-pointer text-[11px] font-medium tracking-wide uppercase">
-								View JSON
-							</summary>
-							<pre class="mt-1 max-h-48 overflow-auto rounded bg-surface-200-800/40 p-2">
-								{JSON.stringify($currentPlan.inspect.card.payload, null, 2)}
-							</pre>
-						</details>
-					</div>
-				{/if}
-			{:else}
-				<p class="text-surface-500-300 text-xs">Inspect artifact pending.</p>
 			{/if}
 		</div>
 	</div>

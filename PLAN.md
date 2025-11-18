@@ -202,6 +202,7 @@ Each slice can be refined over time, but we avoid leaving half-wired plumbing wi
   - Implement simple phase transitions in the chat page:
     - After user sends their **first** message, set `phase = 'discover'`.
     - After user picks an interpret option, log the choice, append a `SelectionSummaryCard`, set `phase = 'shape'`, then call `/api/cards` again.
+    - If the user later picks a different interpret option on the same card, **rewind the thread** to that card and fork the journey from that decision; new summaries and downstream cards reflect the new selection.
   - Optionally start wiring Vercel AI SDK, but it’s acceptable if the cards are still stubbed as long as the flow is correct.
 
 - **Status (current)**
@@ -221,7 +222,7 @@ Each slice can be refined over time, but we avoid leaving half-wired plumbing wi
 - **Scope**
   - Implement `LensCard.svelte` and `MockupCard.svelte` with simple visuals:
     - Lens: `lensType` label and a `<pre>` of `payload`.
-    - Mockup: list of `regions` grouped or annotated by `layout`.
+    - Mockup: regions rendered via a small skeleton layout presenter (`MockupRegions.svelte`) that uses `layout` and `role` to sketch shelves, sidebars, and stacks.
   - Register `lens` and `mockup` in `card-registry.ts`.
   - Extend `/api/cards` to:
     - When `phase = 'inspect'`, emit a `LensCard` or `MockupCard` depending on the last choice or prompt instructions.
@@ -229,12 +230,15 @@ Each slice can be refined over time, but we avoid leaving half-wired plumbing wi
     - After user picks a proposal in `ProposeCard`, append another `SelectionSummaryCard`, set `phase = 'inspect'`, and call `/api/cards`.
     - Stay in `inspect` by default for subsequent inspect-related interactions.
   - Introduce a small **pinned planning panel** (or strip) that mirrors the current locked-in interpretation, chosen proposal, and latest inspect artifact (lens/mockup), backed by the same artifact/domain model rather than ad-hoc UI state.
+  - Keep card options and the planning panel visually in sync by:
+    - highlighting the selected interpret/propose option row after it is locked, and
+    - reusing a shared dot+code token in option rows, selection summaries, and the pinned plan.
   - Design the mockup experience as a **data-oriented sketch**: each region renders as an abstract layout block, with a “View JSON” affordance so advanced users can inspect the source structure without leaving the thread.
 
 - **Status (current)**
-  - `LensCard` is wired through the registry, and the endpoint returns lens cards for `phase = 'inspect'`.
-  - Proposal selections already trigger the `inspect` follow-up, and the pinned `PlanningPanel.svelte` now mirrors the interpret/propose picks plus the current inspect artifact.
-  - Choosing the “minimal” and “workspace” paths now returns distinct mockup sketches, while “dashboard” yields a lens; all inspect artifacts show inline JSON toggles and the planning panel mirrors the active artifact (mockup regions or lens summary) using the same presenter components.
+  - `LensCard` and `MockupCard` are wired through the registry, and the endpoint returns lens or mockup cards for `phase = 'inspect'`.
+  - Proposal selections already trigger the `inspect` follow-up, and the pinned `PlanningPanel.svelte` mirrors the interpret/propose picks plus the current inspect artifact.
+  - Each proposal path (“minimal”, “dashboard”, “workspace”) now returns its own mockup skeleton via `MockupRegions.svelte`; all inspect artifacts show inline JSON toggles and the planning panel mirrors the active artifact (mockup regions or lens summary) using the same presenter components.
   - **Next up**: diversify inspect payloads for any new proposal branches, and wire the same presenters into future artifact side panels so mockups/lenses stay consistent when they graduate beyond the thread.
 
 - **"Done" when**
