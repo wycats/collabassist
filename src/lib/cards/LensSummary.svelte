@@ -18,9 +18,9 @@
 		callsToAction: string[];
 	};
 
-	const props = $props<Props>();
+	const props: Props = $props();
 
-	function coercePayload(payload: unknown): ParsedPayload {
+	function coercePayload(payload: LensCard['payload']): ParsedPayload {
 		if (!payload || typeof payload !== 'object') {
 			return { sections: [], callsToAction: [] };
 		}
@@ -29,15 +29,15 @@
 
 		const sections = Array.isArray(raw.sections)
 			? raw.sections
-				.filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
-				.map((item) => {
-					const id = typeof item.id === 'string' ? item.id : crypto.randomUUID();
-					const label = typeof item.label === 'string' ? item.label : 'Section';
-					const contents = Array.isArray(item.contents)
-						? item.contents.filter((value): value is string => typeof value === 'string')
-						: [];
-					return { id, label, contents } satisfies LensSection;
-				})
+					.filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+					.map((item) => {
+						const id = typeof item.id === 'string' ? item.id : crypto.randomUUID();
+						const label = typeof item.label === 'string' ? item.label : id;
+						const contents = Array.isArray(item.contents)
+							? item.contents.filter((value): value is string => typeof value === 'string')
+							: [];
+						return { id, label, contents } satisfies LensSection;
+					})
 			: [];
 
 		const callsToAction = Array.isArray(raw.callsToAction)
@@ -61,7 +61,7 @@
 					<p>{section.label}</p>
 					{#if section.contents.length}
 						<ul>
-							{#each section.contents as content, index}
+							{#each section.contents as content, index (index)}
 								<li data-kind="content">{content}</li>
 							{/each}
 						</ul>
@@ -77,7 +77,7 @@
 		<div class="ctas">
 			<p>Calls to action</p>
 			<ul>
-				{#each parsed.callsToAction as action, index}
+				{#each parsed.callsToAction as action, index (index)}
 					<li>{action}</li>
 				{/each}
 			</ul>
@@ -97,7 +97,11 @@
 		font-size: 0.8rem;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
-		color: var(--sk-color-muted-600);
+		color: color-mix(
+			in srgb,
+			var(--color-surface-500, oklch(0.7 0 0)) 60%,
+			var(--color-surface-800, oklch(0.3 0 0))
+		);
 	}
 
 	ul {
@@ -110,10 +114,10 @@
 	}
 
 	ul > li {
-		border: 1px solid color-mix(in srgb, var(--sk-color-surface-500) 20%, transparent);
+		border: 1px solid color-mix(in srgb, var(--color-surface-400, oklch(0.75 0 0)) 35%, transparent);
 		border-radius: 0.6rem;
 		padding: 0.5rem 0.6rem;
-		background: color-mix(in srgb, var(--sk-color-surface-50) 70%, transparent);
+		background: color-mix(in srgb, var(--color-surface-50, oklch(0.99 0 0)) 70%, transparent);
 	}
 
 	ul > li > p {
@@ -124,20 +128,29 @@
 
 	ul > li ul {
 		margin-top: 0.35rem;
-		border-left: 2px solid color-mix(in srgb, var(--sk-color-muted-500) 40%, transparent);
+		border-left: 2px solid
+			color-mix(in srgb, var(--color-surface-500, oklch(0.7 0 0)) 40%, transparent);
 		padding-left: 0.65rem;
 		gap: 0.25rem;
 	}
 
 	li[data-kind='content'] {
 		font-size: 0.8rem;
-		color: var(--sk-color-muted-700);
+		color: color-mix(
+			in srgb,
+			var(--color-surface-600, oklch(0.45 0 0)) 70%,
+			var(--color-surface-900, oklch(0.25 0 0))
+		);
 	}
 
 	.placeholder {
 		margin: 0;
 		font-size: 0.8rem;
-		color: var(--sk-color-muted-600);
+		color: color-mix(
+			in srgb,
+			var(--color-surface-500, oklch(0.7 0 0)) 60%,
+			var(--color-surface-800, oklch(0.3 0 0))
+		);
 	}
 
 	.ctas {
@@ -152,7 +165,11 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
-		color: var(--sk-color-muted-500);
+		color: color-mix(
+			in srgb,
+			var(--color-surface-600, oklch(0.45 0 0)) 55%,
+			var(--color-surface-900, oklch(0.25 0 0))
+		);
 	}
 
 	.ctas ul {
@@ -161,7 +178,11 @@
 
 	.ctas li {
 		font-size: 0.78rem;
-		color: var(--sk-color-muted-700);
+		color: color-mix(
+			in srgb,
+			var(--color-surface-600, oklch(0.45 0 0)) 70%,
+			var(--color-surface-900, oklch(0.25 0 0))
+		);
 	}
 
 	section[data-variant='compact'] {

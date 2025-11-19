@@ -25,8 +25,11 @@
 <style>
 	details {
 		margin-top: 0.75rem;
-		font-size: 0.85rem;
-		color: var(--sk-color-muted-700);
+		color: color-mix(
+			in srgb,
+			var(--color-surface-600, oklch(0.45 0 0)) 70%,
+			var(--color-surface-900, oklch(0.25 0 0))
+		);
 	}
 
 	summary {
@@ -37,7 +40,7 @@
 		margin: 0.4rem 0 0;
 		padding: 0.7rem;
 		border-radius: 0.6rem;
-		background: color-mix(in srgb, var(--sk-color-surface-2) 80%, transparent);
+		background: color-mix(in srgb, var(--color-surface-100, oklch(0.96 0 0)) 80%, transparent);
 		font-size: 0.78rem;
 		max-height: 18rem;
 		overflow: auto;

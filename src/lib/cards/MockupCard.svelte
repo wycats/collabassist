@@ -27,7 +27,11 @@
 	details {
 		margin-top: 0.85rem;
 		font-size: 0.85rem;
-		color: var(--sk-color-muted-700);
+		color: color-mix(
+			in srgb,
+			var(--color-surface-600, oklch(0.45 0 0)) 70%,
+			var(--color-surface-900, oklch(0.25 0 0))
+		);
 	}
 
 	summary {
@@ -38,7 +42,7 @@
 		margin: 0.5rem 0 0;
 		padding: 0.75rem;
 		border-radius: 0.75rem;
-		background: color-mix(in srgb, var(--sk-color-surface-100) 80%, transparent);
+		background: color-mix(in srgb, var(--color-surface-100, oklch(0.96 0 0)) 80%, transparent);
 		font-size: 0.75rem;
 		line-height: 1.4;
 		white-space: pre-wrap;

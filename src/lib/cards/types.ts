@@ -1,7 +1,7 @@
 // src/lib/cards/types.ts
 // Canonical card model used across the AI UX pipeline.
 
-export type CardKind = 'interpret' | 'propose' | 'mockup' | 'lens' | 'error';
+export type CardKind = 'interpret' | 'propose' | 'mockup' | 'lens' | 'error' | 'selection-summary';
 
 export interface CardBase {
 	id: string;
@@ -34,12 +34,25 @@ export interface ProposeCard extends CardBase {
 	options: ProposeOption[];
 }
 
+export type SelectionSourceKind = 'interpret' | 'propose';
+
+export interface SelectionSummaryCard extends CardBase {
+	kind: 'selection-summary';
+	selectionId: string;
+	selectionLabel: string;
+	selectionSummary?: string;
+	sourceCardKind: SelectionSourceKind;
+}
+
 export type MockupLayout = 'shelf' | 'bookcase' | 'library';
+
+export type MockupRole = 'sidebar' | 'switcher' | 'content';
 
 export interface MockupRegion {
 	id: string;
 	label: string;
 	layout: MockupLayout;
+	role?: MockupRole;
 	notes?: string;
 }
 
@@ -65,9 +78,18 @@ export interface ErrorCard extends CardBase {
 	recoveryHint?: string;
 }
 
-export type AnyCard = InterpretCard | ProposeCard | MockupCard | LensCard | ErrorCard;
+export type AnyCard =
+	| InterpretCard
+	| ProposeCard
+	| MockupCard
+	| LensCard
+	| ErrorCard
+	| SelectionSummaryCard;
 
 // Utility guard helpers make it easy to branch on card types in Svelte.
-export function isCardKind<TKind extends CardKind>(card: AnyCard, kind: TKind): card is Extract<AnyCard, { kind: TKind }> {
+export function isCardKind<TKind extends CardKind>(
+	card: AnyCard,
+	kind: TKind
+): card is Extract<AnyCard, { kind: TKind }> {
 	return card.kind === kind;
 }

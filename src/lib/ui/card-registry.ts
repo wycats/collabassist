@@ -1,15 +1,16 @@
 // src/lib/ui/card-registry.ts
-import type { CardMessage } from '$lib/domain/message';
-import type { SvelteComponent } from 'svelte';
 import ChoiceCard from '$lib/cards/ChoiceCard.svelte';
+import InterpretCard from '$lib/cards/InterpretCard.svelte';
+import ProposeCard from '$lib/cards/ProposeCard.svelte';
+import SelectionSummaryCard from '$lib/cards/SelectionSummaryCard.svelte';
+import LensCard from '$lib/cards/LensCard.svelte';
+import MockupCard from '$lib/cards/MockupCard.svelte';
 
-export type CardComponent = typeof SvelteComponent<{
-	message: CardMessage<any>;
-	// card-specific events are handled via Svelte's component typing;
-	// we keep this loose here for simplicity.
-}>;
-
-// Map cardType → component
-export const cardRegistry: Record<string, CardComponent> = {
-	choice: ChoiceCard
-};
+export const cardRegistry = {
+	choice: ChoiceCard,
+	'ai-interpret': InterpretCard,
+	'ai-propose': ProposeCard,
+	'ai-lens': LensCard,
+	'ai-mockup': MockupCard,
+	'selection-summary': SelectionSummaryCard
+} as const;

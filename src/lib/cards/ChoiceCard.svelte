@@ -1,20 +1,26 @@
 <!-- src/lib/cards/ChoiceCard.svelte -->
 <script lang="ts">
+	import CardShell from '$lib/cards/CardShell.svelte';
+	import Button from '$lib/ui/Button.svelte';
 	import type { CardMessage } from '$lib/domain/message';
 	import type { ChoiceCardSpec, ChoiceOption } from '$lib/domain/card';
-	import { RadioGroup } from 'bits-ui';
-	import Button from '$lib/ui/Button.svelte';
 
 	const props = $props<{
 		message: CardMessage<ChoiceCardSpec>;
 		onSubmit?: (payload: { messageId: string; choice: ChoiceOption }) => void;
 	}>();
 
-	let selectedId = $state<string | null>(null);
+	let selectedId = $state<string | undefined>();
+
+	function selectOption(optionId: string) {
+		selectedId = optionId;
+	}
 
 	function handleSubmit() {
 		if (!selectedId) return;
-		const choice = props.message.spec.options.find((o) => o.id === selectedId);
+		const choice = props.message.spec.options.find(
+			(option: ChoiceOption) => option.id === selectedId
+		);
 		if (!choice) return;
 
 		(props.onSubmit ?? (() => {}))({
@@ -24,50 +30,83 @@
 	}
 </script>
 
-<div class="space-y-3 rounded-container border border-surface-200-800 bg-surface-100-900 p-3">
-	<div>
-		<p class="text-surface-600-300 mb-1 text-xs font-semibold tracking-wide uppercase">Choice</p>
-		<p class="text-surface-900-50 text-sm">
-			{props.message.spec.prompt}
-		</p>
-	</div>
-
-	<RadioGroup.Root class="space-y-2" bind:value={selectedId} aria-label={props.message.spec.prompt}>
+<CardShell title={props.message.spec.prompt}>
+	<ul class="choice-list" role="list">
 		{#each props.message.spec.options as option (option.id)}
-			<RadioGroup.Item
-				value={option.id}
-				class="flex cursor-pointer items-start gap-2 rounded-container border
-               border-surface-300-700 px-3 py-2 data-[state=checked]:border-primary-500
-               data-[state=checked]:bg-primary-500/5"
-			>
-				<RadioGroup.Input class="sr-only" />
-				<RadioGroup.Control
-					class="mt-1 flex h-4 w-4 items-center justify-center
-                 rounded-full border border-surface-400-600
-                 data-[state=checked]:border-primary-500
-                 data-[state=checked]:bg-primary-500"
+			<li>
+				<button
+					type="button"
+					class="choice"
+					data-selected={selectedId === option.id ? 'true' : undefined}
+					aria-pressed={selectedId === option.id}
+					onclick={() => selectOption(option.id)}
 				>
-					<div class="h-2 w-2 rounded-full bg-surface-50" />
-				</RadioGroup.Control>
-				<div class="flex-1">
-					<div class="text-sm font-medium">{option.label}</div>
+					<span class="label">{option.label}</span>
 					{#if option.description}
-						<div class="text-surface-600-300 mt-0.5 text-xs">
-							{option.description}
-						</div>
+						<span class="description">{option.description}</span>
 					{/if}
-				</div>
-			</RadioGroup.Item>
+				</button>
+			</li>
 		{/each}
-	</RadioGroup.Root>
+	</ul>
 
-	<div class="flex justify-end pt-1">
-		<Button variant="primary" on:click={handleSubmit} disabled={!selectedId}>Confirm</Button>
+	<div class="actions">
+		<Button variant="primary" onclick={handleSubmit} disabled={!selectedId}>Confirm</Button>
 	</div>
-</div>
+</CardShell>
 
 <style>
-	.rounded-container {
-		@apply rounded-lg;
+	.choice-list {
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.choice-list li {
+		list-style: none;
+	}
+
+	.choice {
+		width: 100%;
+		text-align: left;
+		border: 1px solid color-mix(in lab, var(--surface-400) 60%, transparent);
+		border-radius: 0.85rem;
+		padding: 0.75rem 0.9rem;
+		background: color-mix(in lab, var(--surface-50) 80%, transparent);
+		transition:
+			border-color 120ms ease,
+			background 120ms ease;
+		cursor: pointer;
+	}
+
+	.choice[data-selected='true'] {
+		border-color: var(--primary-500);
+		background: color-mix(in lab, var(--primary-500) 12%, var(--surface-50));
+	}
+
+	.choice:focus-visible {
+		outline: 2px solid var(--primary-500);
+		outline-offset: 2px;
+	}
+
+	.label {
+		display: block;
+		font-weight: 600;
+		color: var(--surface-900);
+	}
+
+	.description {
+		display: block;
+		margin-top: 0.15rem;
+		font-size: 0.85rem;
+		color: color-mix(in lab, var(--surface-600) 65%, var(--surface-900));
+	}
+
+	.actions {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 0.75rem;
 	}
 </style>

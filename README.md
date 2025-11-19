@@ -68,7 +68,7 @@ These values are meant to be decision filters, especially when the plan doesn’
 
 ### 5. Baseline web + Svelte over heavy stacks
 
-- We lean on **Svelte 5**, Skeleton, Bits UI, native `<dialog>`, and Baseline web features.
+- We lean on **Svelte 5**, Skeleton (as configured in this repo's Tailwind 4 + `@theme` setup), Bits UI, native `<dialog>`, and Baseline web features.
 - We avoid importing entire component libraries or dialog frameworks when native elements and small components will do.
 - Layout and styling live in Svelte components, not giant global CSS blobs. See `docs/ui/style-guide.md` for the markup + scoped CSS conventions we follow day to day.
 
@@ -84,9 +84,10 @@ These values are meant to be decision filters, especially when the plan doesn’
 - A basic **chat shell** (`ChatShell`, `ChatThread`, `ChatComposer`).
 - A **message model** (`src/lib/domain/message.ts`) with text and card messages.
 - A **card model** (`src/lib/cards/types.ts`) and matching **JSON Schema** (`src/lib/schema/card.schema.json`).
-- A **card registry** (`src/lib/ui/card-registry.ts`) and the first card components (`Interpret`, `Propose`, `Lens`, `Mockup`, and the new `SelectionSummary` that records user picks inline).
+- A **card registry** (`src/lib/ui/card-registry.ts`) and the first card components (`Interpret`, `Propose`, `Lens`, `Mockup`, `Error`, and `SelectionSummary` that records user picks inline).
 - A **pinned planning panel** (`PlanningPanel.svelte` backed by `planning-store.ts`) that mirrors the locked interpret/propose decisions and the latest inspect artifact so the plan stays visible even as the chat scrolls.
-- A stubbed `/api/cards` endpoint that already branches by `phase` (`discover` → interpret, `shape` → propose, `inspect` → lens) so interpret and propose selections trigger automatic follow-up calls.
+- A stubbed `/api/cards` endpoint that already branches by `phase` (`discover` → interpret, `shape` → propose, `inspect` → lens/mockup) so interpret and propose selections trigger automatic follow-up calls.
+- A recursive, quantum-aware mockup layout spec in `docs/ai/mockup-layout-spec.md` implemented by `MockupRegions.svelte`, used consistently in both cards and the planning panel.
 - Design notes and story flows in `docs/ai/` that stay in lockstep with the implementation.
 
 The next major steps are:

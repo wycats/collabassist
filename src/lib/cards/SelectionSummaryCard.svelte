@@ -23,19 +23,19 @@
    or two lines, with an optional second summary line.
 -->
 <section class="summary" aria-label={`${phaseLabel} locked`}>
-	<div class="summary__rail" aria-hidden="true">
-		<div class="summary__rail-line"></div>
-		<div class="summary__token">
+	<div class="rail" aria-hidden="true">
+		<div class="rail-line"></div>
+		<div class="token">
 			<OptionToken {token} size="sm" />
 		</div>
 	</div>
-	<div class="summary__body">
-		<p class="summary__line">
-			<span class="summary__phase">{phaseLabel} locked:</span>
-			<span class="summary__label">{card.selectionLabel}</span>
+	<div class="body">
+		<p class="line">
+			<span class="phase">{phaseLabel} locked:</span>
+			<span class="label">{card.selectionLabel}</span>
 		</p>
 		{#if card.selectionSummary}
-			<p class="summary__details">{card.selectionSummary}</p>
+			<p class="details">{card.selectionSummary}</p>
 		{/if}
 	</div>
 </section>
@@ -49,7 +49,7 @@
 		padding-block: 0.25rem;
 	}
 
-	.summary__rail {
+	.rail {
 		position: relative;
 		display: flex;
 		flex-direction: column;
@@ -58,7 +58,7 @@
 		padding-inline-start: 0.5rem;
 	}
 
-	.summary__rail-line {
+	.rail-line {
 		position: absolute;
 		inset-block: 0;
 		left: 50%;
@@ -67,20 +67,20 @@
 		background: color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 70%, transparent);
 	}
 
-	.summary__token {
+	.token {
 		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
 
-	.summary__body {
+	.body {
 		display: flex;
 		flex-direction: column;
 		gap: 0.1rem;
 	}
 
-	.summary__line {
+	.line {
 		margin: 0;
 		font-size: 0.8rem;
 		color: color-mix(
@@ -93,17 +93,17 @@
 		text-overflow: ellipsis;
 	}
 
-	.summary__phase {
+	.phase {
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		margin-right: 0.25rem;
 	}
 
-	.summary__label {
+	.label {
 		font-weight: 600;
 	}
 
-	.summary__details {
+	.details {
 		margin: 0;
 		font-size: 0.78rem;
 		color: color-mix(

@@ -1,15 +1,20 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
+	export type $$Slots = {
+		default: Record<string, never>;
+		'header-right': Record<string, never>;
+	};
+
 	const props = $props<{
 		title?: string;
 		children?: Snippet;
-		headerRight?: Snippet;
+		'header-right'?: Snippet;
 	}>();
 </script>
 
 <div
-	class="flex min-h-screen flex-col bg-gradient-to-b from-surface-50-950 to-surface-100-900 font-sans"
+	class="flex min-h-screen flex-col bg-linear-to-b from-surface-50-950 to-surface-100-900 font-sans"
 >
 	<header class="border-b border-surface-200-800/70 bg-surface-50/80 backdrop-blur">
 		<div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
@@ -17,7 +22,7 @@
 				{props.title ?? 'AI Client – Interaction Playground'}
 			</h1>
 			<div class="text-surface-600-300 flex items-center gap-2 text-[11px]">
-				{@render props.headerRight?.()}
+				{@render props['header-right']?.()}
 			</div>
 		</div>
 	</header>

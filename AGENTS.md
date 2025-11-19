@@ -131,6 +131,8 @@ Agents should:
   - truly global concerns (e.g. `<dialog>` animation)
   - avoid app-specific `chat-*` utility classes when the same structure can live in Svelte components.
 
+- Treat this repo as the source of truth for Skeleton's configuration. Before using a theme token, search the codebase (for example `app.css`, `src/**`) or inspect DevTools to confirm the custom property exists. Prefer the actual tokens you see here (e.g. `--color-surface-50`, `--surface-900`, `--color-primary-500`) over legacy names you might remember from older Skeleton versions.
+
 - Wrap Skeleton styles into small, app-specific components:
   - `Button.svelte`
   - `Card.svelte`
@@ -166,6 +168,11 @@ Agents should:
 - **Data attributes for variants** – When a variant needs styling, use small data attributes (`data-layout="shelf"`) that also describe the state to screen readers and future contributors.
 - **Callbacks over Svelte events** – Instead of `createEventDispatcher`/`on:event`, pass callbacks via props (`onSubmit`, `onSelect`, etc.) so components compose like standard functions.
 - **Snippets over legacy slots** – Svelte 5 favors `Snippet`s for composition. Use snippets (`children?: Snippet`) in shared shells/layouts (`ChatShell`, `CardShell`, etc.) rather than old slot APIs.
+
+When choosing color and surface tokens:
+
+- Inspect the existing styles (in `app.css` or nearby components) and reuse those custom properties instead of inventing new ones.
+- Prefer the `--color-*` / `--surface-*` tokens actually present in this repo over any `--sk-*` names that are not defined here.
 
 ### 4.4 Baseline-First Interactions (Dialogs, Popovers, Etc.)
 

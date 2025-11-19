@@ -21,29 +21,34 @@
 	}
 </script>
 
-<ul class="option-list" role="list">
+<ul role="list">
 	{#each props.options as option (option.id)}
 		<li>
 			<button
 				type="button"
-				class="option {option.id === props.selectedId ? 'option--selected' : ''}"
+				data-selected={option.id === props.selectedId ? 'true' : undefined}
+				aria-pressed={option.id === props.selectedId}
 				onclick={() => handleSelect(option)}
 			>
 				{#if props.showToken}
 					{@const token = getOptionToken(option.id)}
-					<OptionToken {token} size="sm" class="option__token" />
+					<div class="token-wrapper">
+						<OptionToken {token} size="sm" />
+					</div>
 				{/if}
-				<span class="option__label">{option.label}</span>
-				{#if option.summary}
-					<span class="option__summary">{option.summary}</span>
-				{/if}
+				<span>
+					<strong>{option.label}</strong>
+					{#if option.summary}
+						<small>{option.summary}</small>
+					{/if}
+				</span>
 			</button>
 		</li>
 	{/each}
 </ul>
 
 <style>
-	.option-list {
+	ul {
 		list-style: none;
 		margin: 0;
 		padding: 0;
@@ -52,7 +57,7 @@
 		gap: 0.5rem;
 	}
 
-	.option {
+	button {
 		width: 100%;
 		text-align: left;
 		display: flex;
@@ -66,14 +71,11 @@
 		transition:
 			border-color 120ms ease,
 			background 120ms ease;
+		font-family: inherit; /* Ensure button inherits font */
 	}
 
-	.option__token {
-		flex-shrink: 0;
-	}
-
-	.option:hover,
-	.option:focus-visible {
+	button:hover,
+	button:focus-visible {
 		border-color: var(--color-primary-500, oklch(0.57 0.21 258.29));
 		background: color-mix(
 			in srgb,
@@ -83,7 +85,7 @@
 		outline: none;
 	}
 
-	.option--selected {
+	button[data-selected='true'] {
 		border-color: var(--color-primary-500, oklch(0.57 0.21 258.29));
 		background: color-mix(
 			in srgb,
@@ -92,19 +94,28 @@
 		);
 	}
 
-	.option__label {
-		display: block;
-		font-weight: 500;
+	.token-wrapper {
+		flex-shrink: 0;
+		display: flex; /* Ensure token is centered if needed */
 	}
 
-	.option__summary {
-		display: block;
+	button > span {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+	}
+
+	strong {
+		font-weight: 500;
+		color: inherit;
+	}
+
+	small {
 		font-size: 0.85rem;
 		color: color-mix(
 			in lab,
 			var(--color-surface-600, oklch(0.45 0 0)) 65%,
 			var(--color-surface-900, oklch(0.25 0 0))
 		);
-		margin-top: 0.15rem;
 	}
 </style>

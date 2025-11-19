@@ -1,14 +1,30 @@
 <script lang="ts">
+	import type { ComponentType } from 'svelte';
 	import type { Message, TextMessage, CardMessage, ArtifactLinkMessage } from '$lib/domain/message';
 	import { cardRegistry } from '$lib/ui/card-registry';
 
 	const props = $props<{
 		message: Message;
-		onCardSubmit?: (payload: { messageId: string; cardType: string; [key: string]: any }) => void;
+		onCardSubmit?: (
+			payload: { messageId: string; cardType: string } & Record<string, unknown>
+		) => void;
 	}>();
 
 	const isUser = props.message.role === 'user';
-	const isAssistant = props.message.role === 'assistant';
+
+	type RegisteredCardType = keyof typeof cardRegistry;
+
+	function getCardComponent(cardType: string): ComponentType | undefined {
+		return cardRegistry[cardType as RegisteredCardType] as unknown as ComponentType | undefined;
+	}
+
+	function handleCardSubmit(detail: Record<string, unknown>, card: CardMessage) {
+		(props.onCardSubmit ?? (() => {}))({
+			messageId: card.id,
+			cardType: card.cardType,
+			...detail
+		});
+	}
 </script>
 
 <div class={`mb-2 flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -26,21 +42,17 @@
 				<p>{(props.message as TextMessage).content}</p>
 			{:else if props.message.kind === 'card'}
 				{#key props.message.id}
-					{#if cardRegistry[(props.message as CardMessage).cardType]}
-						{#await Promise.resolve(cardRegistry[(props.message as CardMessage).cardType]) then Card}
-							<Card
-								message={props.message as CardMessage}
-								onSubmit={(detail) =>
-									(props.onCardSubmit ?? (() => {}))({
-										messageId: (props.message as CardMessage).id,
-										cardType: (props.message as CardMessage).cardType,
-										...detail
-									})}
-							/>
-						{/await}
+					{@const cardMessage = props.message as CardMessage}
+					{@const CardComponent = getCardComponent(cardMessage.cardType)}
+					{#if CardComponent}
+						<CardComponent
+							message={cardMessage}
+							onSubmit={(detail: Record<string, unknown>) =>
+								handleCardSubmit(detail ?? {}, cardMessage)}
+						/>
 					{:else}
 						<div class="text-surface-600-300 text-xs">
-							Unknown card type: {(props.message as CardMessage).cardType}
+							Unknown card type: {cardMessage.cardType}
 						</div>
 					{/if}
 				{/key}

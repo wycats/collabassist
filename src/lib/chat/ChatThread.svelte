@@ -2,6 +2,11 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
+	export type $$Slots = {
+		default: Record<string, never>;
+		actions: Record<string, never>;
+	};
+
 	const props = $props<{
 		title?: string;
 		children?: Snippet;
