@@ -8,6 +8,7 @@
 		disabled?: boolean;
 		onclick?: (event: MouseEvent) => void;
 		children?: Snippet;
+		class?: string;
 	}>();
 </script>
 
@@ -17,6 +18,7 @@
 	onclick={props.onclick}
 	data-variant={props.variant ?? 'primary'}
 	data-size={props.size ?? 'md'}
+	class={props.class}
 >
 	{@render props.children?.()}
 </button>

@@ -7,6 +7,7 @@
 	import ChatComposer from '$lib/chat/ChatComposer.svelte';
 	import PlanningPanel from '$lib/chat/PlanningPanel.svelte';
 	import InspectArtifactCard from '$lib/chat/InspectArtifactCard.svelte';
+	import PromptBox from '$lib/ui/PromptBox.svelte';
 
 	import {
 		type CardMessage,
@@ -24,25 +25,31 @@
 		SelectionSummaryCard as SelectionSummaryCardSpec,
 		SelectionSourceKind,
 		LensCard as LensCardSpec,
-		MockupCard as MockupCardSpec
+		MockupCard as MockupCardSpec,
+		AnyCard
 	} from '$lib/cards/types';
 	import { INITIAL_PHASE, type Phase } from '$lib/domain/phase';
-	import {
-		lockInterpret,
-		lockPropose,
-		lockInspectFromLens,
-		lockInspectFromMockup
-	} from '$lib/domain/planning-store';
+	import { decisions } from '$lib/domain/decisions-store';
+	import type { PageData } from './$types';
 
-	let messages: Message[] = [
+	let { data }: { data: PageData } = $props();
+
+	// Initialize decisions store with server data
+	$effect(() => {
+		if (data.decisions) {
+			decisions.set(data.decisions);
+		}
+	});
+
+	let messages: Message[] = $state([
 		createAssistantTextMessage(
 			'Welcome to the experimental AI client. Try typing, or inject a sample interpret card.'
 		)
-	];
+	]);
 
-	let draft = '';
-	let phase: Phase = INITIAL_PHASE;
-	let isRequestInFlight = false;
+	let draft = $state('');
+	let phase: Phase = $state(INITIAL_PHASE);
+	let isRequestInFlight = $state(false);
 
 	function rewindToMessage(messageId: string) {
 		const index = messages.findIndex((m) => m.id === messageId);
@@ -210,13 +217,12 @@
 			}
 
 			const card = (await response.json()) as LensCardSpec | MockupCardSpec;
-			const isLens = card.kind === 'lens';
-			if (isLens) {
-				lockInspectFromLens(card, phase);
-			} else {
-				lockInspectFromMockup(card, phase);
-			}
+			
+			// Note: We no longer lock inspect here, we just show the card.
+			// The user must explicitly "Accept" it to add to the rail (future slice).
+			// For now, we treat interpret/propose selection as implicit acceptance for the rail.
 
+			const isLens = card.kind === 'lens';
 			const cardMessage: CardMessage<LensCardSpec | MockupCardSpec> = {
 				id: card.id,
 				role: 'assistant',
@@ -235,6 +241,27 @@
 			messages = [...messages, assistantMsg];
 		} finally {
 			isRequestInFlight = false;
+		}
+	}
+
+	async function persistDecision(card: AnyCard, summary: string | null = null) {
+		try {
+			const response = await fetch('/api/decisions', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					cardId: card.id,
+					parentId: null, // TODO: Handle branching
+					summary,
+					cardSnapshot: card
+				})
+			});
+
+			if (!response.ok) throw new Error('Failed to persist decision');
+			const decision = await response.json();
+			decisions.add(decision);
+		} catch (e) {
+			console.error('Failed to save decision', e);
 		}
 	}
 
@@ -257,7 +284,15 @@
 		if (payload.cardType === 'ai-interpret' && payload.option) {
 			if (isRequestInFlight) return;
 			rewindToMessage(payload.messageId);
-			lockInterpret(payload.option, 'shape');
+			
+			// Find the card spec from messages to snapshot it
+			const cardMsg = messages.find(m => m.id === payload.messageId) as CardMessage<InterpretCardSpec>;
+			if (cardMsg) {
+				// Create a synthetic "Accepted" version of the card with the selection locked?
+				// For now, just snapshot the interpret card and note the selection in summary
+				await persistDecision(cardMsg.spec, `Selected intent: ${payload.option.label}`);
+			}
+
 			appendSelectionSummaryCard(payload.option, 'interpret');
 			await fetchProposeCard(payload.option.id);
 		}
@@ -265,7 +300,12 @@
 		if (payload.cardType === 'ai-propose' && payload.option) {
 			if (isRequestInFlight) return;
 			rewindToMessage(payload.messageId);
-			lockPropose(payload.option, 'inspect');
+
+			const cardMsg = messages.find(m => m.id === payload.messageId) as CardMessage<ProposeCardSpec>;
+			if (cardMsg) {
+				await persistDecision(cardMsg.spec, `Selected path: ${payload.option.label}`);
+			}
+
 			appendSelectionSummaryCard(payload.option, 'propose');
 			await fetchInspectCard(payload.option.id);
 		}
@@ -299,15 +339,29 @@
 	</div>
 
 	<ChatComposer onSubmit={sendMessage}>
-		<textarea
-			class="max-h-32 min-h-10 flex-1 resize-y bg-transparent
-           text-sm focus:outline-none"
-			placeholder="Type a message…"
-			bind:value={draft}
-			on:keydown={handleKeydown}
-		></textarea>
-		<Button type="submit" variant="primary" disabled={!draft.trim() || isRequestInFlight}>
-			{isRequestInFlight ? 'Thinking…' : 'Send'}
-		</Button>
+		<div class="flex items-end gap-2">
+			<PromptBox
+				bind:value={draft}
+				placeholder="Ask anything..."
+				disabled={isRequestInFlight}
+				onsubmit={sendMessage}
+			/>
+			<Button
+				type="button"
+				variant="primary"
+				size="sm"
+				disabled={!draft.trim() || isRequestInFlight}
+				onclick={sendMessage}
+				class="mb-0.5 rounded-full w-8 h-8 !p-0 flex items-center justify-center shrink-0"
+			>
+				{#if isRequestInFlight}
+					<div class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+				{:else}
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+						<path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
+					</svg>
+				{/if}
+			</Button>
+		</div>
 	</ChatComposer>
 </ChatShell>

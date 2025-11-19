@@ -16,3 +16,14 @@ export const session = sqliteTable('session', {
 export type Session = typeof session.$inferSelect;
 
 export type User = typeof user.$inferSelect;
+
+export const decisions = sqliteTable('decisions', {
+	id: text('id').primaryKey(),
+	cardId: text('card_id').notNull(),
+	parentId: text('parent_id'), // Nullable for the root decision
+	acceptedAt: integer('accepted_at', { mode: 'timestamp' }).notNull(),
+	summary: text('summary'),
+	cardSnapshot: text('card_snapshot').notNull() // JSON string of the accepted card
+});
+
+export type Decision = typeof decisions.$inferSelect;
