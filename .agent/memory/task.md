@@ -1,0 +1,26 @@
+# Implementation Tasks
+
+- [x] **Slice 1: The Decisions Rail (Foundation & Refactor)** <!-- id: 0 -->
+    - [x] **Refactor Store**: Replace `planning-store.ts` with `decisions-store.ts` <!-- id: 1 -->
+    - [x] **Database Schema**: Create `decisions` table in SQLite <!-- id: 2 -->
+    - [x] **Abstract Orchestration**: Update `+page.svelte` to handle generic "Accept" events <!-- id: 3 -->
+    - [x] **UI Implementation**: Transform `PlanningPanel` into a horizontal **Decisions Rail** <!-- id: 4 -->
+- [x] **Slice 2: The Refine Loop** <!-- id: 5 -->
+    - [x] Add "Refine" action to cards <!-- id: 6 -->
+    - [x] Create Refine Panel <!-- id: 7 -->
+    - [x] Implement Versioning logic <!-- id: 8 -->
+- [x] **Slice 3: Fork & Branching** <!-- id: 9 -->
+    - [x] Add "Fork" action <!-- id: 10 -->
+    - [x] Support branching in DB <!-- id: 11 -->
+    - [x] Visualize branches in Rail (Active Path implemented) <!-- id: 12 -->
+- [x] **Slice 4: Structured Canvas Layout** <!-- id: 13 -->
+    - [x] Move Chat to sidebar <!-- id: 14 -->
+    - [x] Dedicate main area to Active Card <!-- id: 15 -->
+    - [x] Implement Branch Navigation UI <!-- id: 22 -->
+- [/] **Slice 5: Real Model Integration** <!-- id: 16 -->
+    - [x] Migrate to Google Gemini (Switch from OpenAI) <!-- id: 17 -->
+    - [x] Implement Rail-aware prompting <!-- id: 18 -->
+    - [x] Use `response_format` for card schemas <!-- id: 19 -->
+    - [x] Create `PromptBox` component with `contenteditable` <!-- id: 20 -->
+    - [x] Style as premium AI input <!-- id: 21 -->
+    - [x] **Environment**: Switch to `pnpm` for package management <!-- id: 23 -->

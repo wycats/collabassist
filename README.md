@@ -97,17 +97,10 @@ The next major steps are:
 
 ---
 
-## Quick Start
+## Setup
 
-Install dependencies:
-
-```sh
+```bash
 pnpm install
-```
-
-Run the dev server:
-
-```sh
 pnpm dev
 ```
 

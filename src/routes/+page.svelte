@@ -36,6 +36,8 @@
 
 	let { data }: { data: PageData } = $props();
 
+	const { activePath } = decisions;
+
 	// Initialize decisions store with server data
 	$effect(() => {
 		if (data.decisions) {
@@ -85,7 +87,8 @@
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({
 					messages: [{ role: 'user', content: latestUserMessage }],
-					phase
+					phase,
+					activePath: $activePath
 				})
 			});
 
@@ -168,6 +171,7 @@
 				body: JSON.stringify({
 					messages: [],
 					phase,
+					activePath: $activePath,
 					interaction: {
 						type: 'interpret.selection',
 						optionId
@@ -212,6 +216,7 @@
 				body: JSON.stringify({
 					messages: [],
 					phase,
+					activePath: $activePath,
 					interaction: {
 						type: 'propose.selection',
 						optionId
@@ -333,6 +338,7 @@
 				body: JSON.stringify({
 					messages: [], // We could pass history, but for now just the refine context
 					phase: 'refine',
+					activePath: $activePath,
 					interaction: {
 						type: 'refine',
 						sourceCard: cardToRefine,
@@ -379,6 +385,7 @@
 				body: JSON.stringify({
 					messages: [],
 					phase: 'fork',
+					activePath: $activePath,
 					interaction: {
 						type: 'fork',
 						sourceCard: card

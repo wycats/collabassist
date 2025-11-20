@@ -313,3 +313,22 @@ If in doubt between two options, prefer the one that:
 - preserves the message/artifact model cleanly;
 - uses platform capabilities (native elements, Baseline CSS) over heavy abstractions;
 - makes it easier to experiment with new cards and flows.
+
+---
+
+## 10. Memory Persistence (.agent/memory)
+
+To support continued operation across sessions and machines, agents should treat their memory (plans, context, decisions) as code by checking it into the repository.
+
+### 10.1 Strategy
+
+-   **Serialize**: At the end of a session or significant milestone, agents should serialize their key markdown artifacts (e.g., `task.md`, `implementation_plan.md`, `design_vision.md`) into `.agent/memory`.
+-   **Restore**: At the start of a new session, agents should read the contents of `.agent/memory` to restore their context and understanding of the project state.
+
+### 10.2 Workflow
+
+1.  **Start**: Read files from `.agent/memory` into the active context/artifacts.
+2.  **Work**: Update artifacts in the active workspace as usual.
+3.  **End**: Copy the updated artifacts back to `.agent/memory` to persist the state.
+
+This ensures that the "brain" of the agent travels with the code, enabling seamless handoffs and long-running tasks.
