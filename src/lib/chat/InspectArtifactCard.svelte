@@ -1,14 +1,12 @@
 <script lang="ts">
 	import LensSummary from '$lib/cards/LensSummary.svelte';
 	import MockupRegions from '$lib/cards/MockupRegions.svelte';
-	import { currentPlan } from '$lib/domain/planning-store';
+	import type { AnyCard } from '$lib/cards/types';
 
-	function renderSummary(summary?: string) {
-		return summary ? summary : undefined;
-	}
+	let { card }: { card?: AnyCard | null } = $props();
 </script>
 
-{#if $currentPlan.inspect}
+{#if card}
 	<section
 		class="variant-soft-surface card border border-surface-200-800/70 shadow-sm"
 		aria-live="polite"
@@ -20,32 +18,29 @@
 				<span class="text-surface-500-300 text-[11px] tracking-wide uppercase">Artifact</span>
 				<h3 class="text-sm font-semibold text-surface-900-100">Inspect artifact</h3>
 			</div>
-			<span class="badge">{$currentPlan.inspect.kind}</span>
+			<span class="badge">{card.kind}</span>
 		</div>
 
 		<div class="space-y-3 px-4 py-4 text-sm">
-			<p class="text-surface-900-50 font-medium">{$currentPlan.inspect.label}</p>
-			{#if renderSummary($currentPlan.inspect.summary)}
-				<p class="text-surface-600-200 text-xs">{$currentPlan.inspect.summary}</p>
+			<p class="text-surface-900-50 font-medium">{card.title}</p>
+			{#if card.description}
+				<p class="text-surface-600-200 text-xs">{card.description}</p>
 			{/if}
 
-			{#if $currentPlan.inspect.kind === 'mockup'}
+			{#if card.kind === 'mockup'}
 				<div class="artifact-stack">
-					<MockupRegions regions={$currentPlan.inspect.card.regions} />
+					<MockupRegions regions={card.regions} />
 					<details>
 						<summary>View JSON</summary>
-						<pre>{JSON.stringify($currentPlan.inspect.card.regions, null, 2)}</pre>
+						<pre>{JSON.stringify(card.regions, null, 2)}</pre>
 					</details>
 				</div>
-			{:else}
+			{:else if card.kind === 'lens'}
 				<div class="artifact-stack">
-					<LensSummary
-						lensType={$currentPlan.inspect.card.lensType}
-						payload={$currentPlan.inspect.card.payload}
-					/>
+					<LensSummary lensType={card.lensType} payload={card.payload} />
 					<details>
 						<summary>View JSON</summary>
-						<pre>{JSON.stringify($currentPlan.inspect.card.payload, null, 2)}</pre>
+						<pre>{JSON.stringify(card.payload, null, 2)}</pre>
 					</details>
 				</div>
 			{/if}

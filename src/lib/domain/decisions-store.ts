@@ -16,15 +16,18 @@ function createDecisionsStore() {
 
 	const activePath = derived([decisions, headId], ([$decisions, $headId]) => {
 		if (!$headId) {
-			// If no head is selected, default to the last added node (temporal tail)
-			// This is a heuristic; ideally we persist the active head.
 			if ($decisions.length === 0) return [];
-			// Find the node that is not a parent to anyone? No, that could be multiple tips.
-			// For now, let's just pick the last one in the list as the default head.
 			const last = $decisions[$decisions.length - 1];
 			return getPath($decisions, last.id);
 		}
 		return getPath($decisions, $headId);
+	});
+
+	const heads = derived(decisions, ($decisions) => {
+		if ($decisions.length === 0) return [];
+		// A head is a node that is not a parent to any other node
+		const parentIds = new Set($decisions.map((d) => d.parentId).filter(Boolean));
+		return $decisions.filter((d) => !parentIds.has(d.id));
 	});
 
 	return {
@@ -44,8 +47,12 @@ function createDecisionsStore() {
 			decisions.set([]);
 			headId.set(null);
 		},
+		setHead: (id: string) => {
+			headId.set(id);
+		},
 		activePath,
-		headId
+		headId,
+		heads
 	};
 }
 

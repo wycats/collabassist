@@ -2,7 +2,6 @@
 	import CardOptionList, { type CardOption } from '$lib/cards/CardOptionList.svelte';
 	import CardShell from '$lib/cards/CardShell.svelte';
 	import type { CardMessage } from '$lib/domain/message';
-	import { currentPlan } from '$lib/domain/planning-store';
 	import type { ProposeCard as ProposeCardSpec, ProposeOption } from '$lib/cards/types';
 
 	type Props = {
@@ -32,6 +31,5 @@
 		options={card.options}
 		onSelect={chooseOption}
 		showToken
-		selectedId={$currentPlan.propose?.id}
 	/>
 </CardShell>

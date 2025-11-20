@@ -2,13 +2,14 @@
 	import Button from '$lib/ui/Button.svelte';
 	import MessageView from '$lib/ui/MessageView.svelte';
 
-	import ChatShell from '$lib/chat/ChatShell.svelte';
 	import ChatThread from '$lib/chat/ChatThread.svelte';
 	import ChatComposer from '$lib/chat/ChatComposer.svelte';
 	import PlanningPanel from '$lib/chat/PlanningPanel.svelte';
 	import InspectArtifactCard from '$lib/chat/InspectArtifactCard.svelte';
 	import RefinePanel from '$lib/chat/RefinePanel.svelte';
 	import PromptBox from '$lib/ui/PromptBox.svelte';
+	import Sidebar from '$lib/layout/Sidebar.svelte';
+	import Canvas from '$lib/layout/Canvas.svelte';
 
 	import {
 		type CardMessage,
@@ -421,10 +422,38 @@
 	>
 {/snippet}
 
-<ChatShell header-right={HeaderRight}>
-	<div
-		class="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start lg:gap-6"
-	>
+<div class="grid h-screen grid-cols-1 lg:grid-cols-[420px_1fr] overflow-hidden">
+	<!-- Sidebar (Chat) -->
+	<Sidebar>
+		{#snippet footer()}
+			<ChatComposer onSubmit={sendMessage}>
+				<div class="flex items-end gap-2">
+					<PromptBox
+						bind:value={draft}
+						placeholder="Ask anything..."
+						disabled={isRequestInFlight}
+						onsubmit={sendMessage}
+					/>
+					<Button
+						type="button"
+						variant="primary"
+						size="sm"
+						disabled={!draft.trim() || isRequestInFlight}
+						onclick={sendMessage}
+						class="mb-0.5 rounded-full w-8 h-8 !p-0 flex items-center justify-center shrink-0"
+					>
+						{#if isRequestInFlight}
+							<div class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+						{:else}
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+								<path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
+							</svg>
+						{/if}
+					</Button>
+				</div>
+			</ChatComposer>
+		{/snippet}
+
 		<ChatThread actions={ThreadActions}>
 			{#each messages as message (message.id)}
 				<MessageView
@@ -435,45 +464,28 @@
 				/>
 			{/each}
 		</ChatThread>
+	</Sidebar>
 
-		<div class="flex flex-col gap-4 lg:sticky lg:top-4">
+	<!-- Canvas (Rail + Artifact) -->
+	<Canvas>
+		{#snippet rail()}
 			<PlanningPanel />
-			{#if refiningCard}
-				<RefinePanel
-					card={refiningCard}
-					onClose={() => (refiningCard = null)}
-					onApply={handleRefineApply}
-				/>
-			{:else}
-				<InspectArtifactCard />
-			{/if}
-		</div>
-	</div>
+		{/snippet}
 
-	<ChatComposer onSubmit={sendMessage}>
-		<div class="flex items-end gap-2">
-			<PromptBox
-				bind:value={draft}
-				placeholder="Ask anything..."
-				disabled={isRequestInFlight}
-				onsubmit={sendMessage}
+		{#if refiningCard}
+			<RefinePanel
+				card={refiningCard}
+				onClose={() => (refiningCard = null)}
+				onApply={handleRefineApply}
 			/>
-			<Button
-				type="button"
-				variant="primary"
-				size="sm"
-				disabled={!draft.trim() || isRequestInFlight}
-				onclick={sendMessage}
-				class="mb-0.5 rounded-full w-8 h-8 !p-0 flex items-center justify-center shrink-0"
-			>
-				{#if isRequestInFlight}
-					<div class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-				{:else}
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-						<path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
-					</svg>
-				{/if}
-			</Button>
-		</div>
-	</ChatComposer>
-</ChatShell>
+		{:else}
+			<!-- Show the head of the rail if available -->
+			{#if $decisions.length > 0}
+				{@const head = $decisions[$decisions.length - 1]}
+				<InspectArtifactCard card={head.cardSnapshot} />
+			{:else}
+				<InspectArtifactCard card={null} />
+			{/if}
+		{/if}
+	</Canvas>
+</div>

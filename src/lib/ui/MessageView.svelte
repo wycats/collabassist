@@ -30,7 +30,7 @@
 </script>
 
 <div class={`mb-2 flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-	<div class="flex max-w-[80%] items-end gap-2">
+	<div class={`flex items-end gap-2 ${props.message.kind === 'text' ? 'max-w-[80%]' : 'w-full'}`}>
 		<div
 			class={`rounded-2xl px-3 py-2 text-sm leading-snug ${
 				props.message.kind === 'text'
