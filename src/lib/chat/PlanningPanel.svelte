@@ -2,6 +2,7 @@
 	import { decisions } from '$lib/domain/decisions-store';
 	import { fade } from 'svelte/transition';
 
+	const railNodes = $derived($decisions.activePath);
 	// We can import specific card renderers or just show summaries for now
 	// For the rail, we want small nodes.
 </script>

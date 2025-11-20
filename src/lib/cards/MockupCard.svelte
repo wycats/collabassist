@@ -6,15 +6,23 @@
 
 	type Props = {
 		message: CardMessage<MockupCardSpec>;
+		onSubmit?: (detail: Record<string, unknown>) => void;
+		onRefine?: () => void;
+		onFork?: () => void;
 	};
 
-	let { message }: Props = $props();
+	let { message, onRefine, onFork }: Props = $props();
 
 	const card = message.spec;
 	const regionsJson = JSON.stringify(card.regions, null, 2);
 </script>
 
-<CardShell title={card.title} description={card.description}>
+<CardShell
+	title={card.title}
+	description={card.description}
+	onRefine={onRefine}
+	onFork={onFork}
+>
 	<MockupRegions regions={card.regions} />
 
 	<details>

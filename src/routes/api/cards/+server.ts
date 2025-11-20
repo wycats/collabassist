@@ -43,12 +43,47 @@ export const POST: RequestHandler = async ({ request }) => {
 		| {
 				messages?: { role: string; content: string }[];
 				phase?: string;
-				interaction?: { type: string; optionId?: string };
+				interaction?: {
+					type: string;
+					optionId?: string;
+					sourceCard?: any;
+					instructions?: string;
+				};
 		  }
 		| undefined;
 
 	const phase = body?.phase ?? 'discover';
 	const selectedOption = body?.interaction?.optionId;
+
+	if (phase === 'refine') {
+		const { sourceCard, instructions } = body?.interaction ?? {};
+
+		// Mock refinement logic (Slice 5 will use real AI)
+		const refinedCard = {
+			...sourceCard,
+			id: crypto.randomUUID(),
+			title: `Refined: ${sourceCard.title}`,
+			description: `Refined based on: "${instructions}"`,
+			// If it's a mockup, maybe tweak regions? For now, just identity + metadata update.
+		};
+
+		return json(refinedCard);
+	}
+
+	if (phase === 'fork') {
+		const { sourceCard } = body?.interaction ?? {};
+
+		// Mock fork logic (Slice 5 will use real AI)
+		const forkedCard = {
+			...sourceCard,
+			id: crypto.randomUUID(),
+			title: `Fork of: ${sourceCard.title}`,
+			description: `Branching off from ${sourceCard.title} to explore alternatives.`
+			// In a real implementation, we'd likely reset some state or offer new options
+		};
+
+		return json(forkedCard);
+	}
 
 	if (phase === 'inspect') {
 		if (selectedOption === 'minimal') {

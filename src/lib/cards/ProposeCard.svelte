@@ -7,10 +7,12 @@
 
 	type Props = {
 		message: CardMessage<ProposeCardSpec>;
-		onSubmit?: (payload: { messageId: string; option: ProposeOption }) => void;
+		onSubmit?: (detail: Record<string, unknown>) => void;
+		onRefine?: () => void;
+		onFork?: () => void;
 	};
 
-	let { message, onSubmit }: Props = $props();
+	let { message, onSubmit, onRefine, onFork }: Props = $props();
 
 	const card = message.spec;
 
@@ -20,7 +22,12 @@
 	}
 </script>
 
-<CardShell title={card.title} description={card.description}>
+<CardShell
+	title={card.title}
+	description={card.description}
+	onRefine={onRefine}
+	onFork={onFork}
+>
 	<CardOptionList
 		options={card.options}
 		onSelect={chooseOption}

@@ -8,6 +8,8 @@
 		onCardSubmit?: (
 			payload: { messageId: string; cardType: string } & Record<string, unknown>
 		) => void;
+		onRefine?: (card: any) => void;
+		onFork?: (card: any) => void;
 	}>();
 
 	const isUser = props.message.role === 'user';
@@ -49,6 +51,8 @@
 							message={cardMessage}
 							onSubmit={(detail: Record<string, unknown>) =>
 								handleCardSubmit(detail ?? {}, cardMessage)}
+							onRefine={() => props.onRefine?.(cardMessage.spec)}
+							onFork={() => props.onFork?.(cardMessage.spec)}
 						/>
 					{:else}
 						<div class="text-surface-600-300 text-xs">

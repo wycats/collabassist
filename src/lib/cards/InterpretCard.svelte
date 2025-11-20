@@ -8,6 +8,8 @@
 	const props = $props<{
 		message: CardMessage<InterpretCardSpec>;
 		onSubmit?: (payload: { messageId: string; option: InterpretOption }) => void;
+		onRefine?: () => void;
+		onFork?: () => void;
 	}>();
 
 	function selectOption(option: CardOption) {
@@ -15,7 +17,12 @@
 	}
 </script>
 
-<CardShell title={props.message.spec.title} description={props.message.spec.description}>
+<CardShell
+	title={props.message.spec.title}
+	description={props.message.spec.description}
+	onRefine={props.onRefine}
+	onFork={props.onFork}
+>
 	<CardOptionList
 		options={props.message.spec.options}
 		onSelect={selectOption}

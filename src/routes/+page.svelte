@@ -7,6 +7,7 @@
 	import ChatComposer from '$lib/chat/ChatComposer.svelte';
 	import PlanningPanel from '$lib/chat/PlanningPanel.svelte';
 	import InspectArtifactCard from '$lib/chat/InspectArtifactCard.svelte';
+	import RefinePanel from '$lib/chat/RefinePanel.svelte';
 	import PromptBox from '$lib/ui/PromptBox.svelte';
 
 	import {
@@ -50,6 +51,11 @@
 	let draft = $state('');
 	let phase: Phase = $state(INITIAL_PHASE);
 	let isRequestInFlight = $state(false);
+	let refiningCard: AnyCard | null = $state(null);
+
+	function handleRefine(card: AnyCard) {
+		refiningCard = card;
+	}
 
 	function rewindToMessage(messageId: string) {
 		const index = messages.findIndex((m) => m.id === messageId);
@@ -310,6 +316,99 @@
 			await fetchInspectCard(payload.option.id);
 		}
 	}
+	async function handleRefineApply(instructions: string) {
+		if (!refiningCard || isRequestInFlight) return;
+		isRequestInFlight = true;
+		const cardToRefine = refiningCard; // Capture for async
+		refiningCard = null; // Close panel
+
+		try {
+			const userMsg = createUserTextMessage(`Refine "${cardToRefine.title}": ${instructions}`);
+			messages = [...messages, userMsg];
+
+			const response = await fetch('/api/cards', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					messages: [], // We could pass history, but for now just the refine context
+					phase: 'refine',
+					interaction: {
+						type: 'refine',
+						sourceCard: cardToRefine,
+						instructions
+					}
+				})
+			});
+
+			if (!response.ok) throw new Error('Failed to refine card');
+
+			const newCard = (await response.json()) as AnyCard;
+
+			const cardMessage: CardMessage<AnyCard> = {
+				id: newCard.id,
+				role: 'assistant',
+				kind: 'card',
+				cardType: `ai-${newCard.kind}`, // Assuming kind maps to cardType for now
+				spec: newCard,
+				createdAt: new Date().toISOString()
+			};
+
+			messages = [...messages, cardMessage];
+		} catch (error) {
+			console.error(error);
+			const assistantMsg = createAssistantTextMessage(
+				"I couldn't refine the card just now. Try again in a moment."
+			);
+			messages = [...messages, assistantMsg];
+		} finally {
+			isRequestInFlight = false;
+		}
+	}
+	async function handleFork(card: AnyCard) {
+		if (isRequestInFlight) return;
+		isRequestInFlight = true;
+
+		try {
+			const userMsg = createUserTextMessage(`Fork "${card.title}"`);
+			messages = [...messages, userMsg];
+
+			const response = await fetch('/api/cards', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					messages: [],
+					phase: 'fork',
+					interaction: {
+						type: 'fork',
+						sourceCard: card
+					}
+				})
+			});
+
+			if (!response.ok) throw new Error('Failed to fork card');
+
+			const newCard = (await response.json()) as AnyCard;
+
+			const cardMessage: CardMessage<AnyCard> = {
+				id: newCard.id,
+				role: 'assistant',
+				kind: 'card',
+				cardType: `ai-${newCard.kind}`,
+				spec: newCard,
+				createdAt: new Date().toISOString()
+			};
+
+			messages = [...messages, cardMessage];
+		} catch (error) {
+			console.error(error);
+			const assistantMsg = createAssistantTextMessage(
+				"I couldn't fork the card just now. Try again in a moment."
+			);
+			messages = [...messages, assistantMsg];
+		} finally {
+			isRequestInFlight = false;
+		}
+	}
 </script>
 
 {#snippet HeaderRight()}
@@ -328,13 +427,26 @@
 	>
 		<ChatThread actions={ThreadActions}>
 			{#each messages as message (message.id)}
-				<MessageView {message} onCardSubmit={handleCardSubmit} />
+				<MessageView
+					{message}
+					onCardSubmit={handleCardSubmit}
+					onRefine={handleRefine}
+					onFork={handleFork}
+				/>
 			{/each}
 		</ChatThread>
 
 		<div class="flex flex-col gap-4 lg:sticky lg:top-4">
 			<PlanningPanel />
-			<InspectArtifactCard />
+			{#if refiningCard}
+				<RefinePanel
+					card={refiningCard}
+					onClose={() => (refiningCard = null)}
+					onApply={handleRefineApply}
+				/>
+			{:else}
+				<InspectArtifactCard />
+			{/if}
 		</div>
 	</div>
 
