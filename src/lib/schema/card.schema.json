@@ -1,5 +1,5 @@
 {
-	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
 	"$id": "https://collabassist/cards.schema.json",
 	"title": "Card",
 	"description": "Union of supported AI UX card types.",
@@ -12,21 +12,16 @@
 		{ "$ref": "#/$defs/SelectionSummaryCard" }
 	],
 	"$defs": {
-		"BaseCard": {
+		"BaseFields": {
 			"type": "object",
 			"properties": {
 				"id": { "type": "string" },
-				"kind": {
-					"type": "string",
-					"enum": ["interpret", "propose", "mockup", "lens", "error", "selection-summary"]
-				},
 				"title": { "type": "string", "minLength": 1 },
 				"description": { "type": "string" },
 				"flowId": { "type": "string" },
 				"stepIndex": { "type": "integer", "minimum": 0 }
 			},
-			"required": ["id", "kind", "title"],
-			"additionalProperties": false
+			"required": ["id", "title"]
 		},
 		"InterpretOption": {
 			"type": "object",
@@ -53,24 +48,44 @@
 			"properties": {
 				"id": { "type": "string" },
 				"label": { "type": "string" },
-				"layout": {
-					"type": "string",
-					"enum": ["shelf", "bookcase", "library"]
-				},
-				"role": {
-					"type": "string",
-					"enum": ["sidebar", "switcher", "content"]
-				},
+				"layout": { "type": "string", "enum": ["shelf", "bookcase", "library"] },
+				"role": { "type": "string", "enum": ["sidebar", "switcher", "content"] },
 				"notes": { "type": "string" }
 			},
 			"required": ["id", "label", "layout"],
 			"additionalProperties": false
 		},
-		"LensPayload": {},
+		"LensSection": {
+			"type": "object",
+			"properties": {
+				"id": { "type": "string" },
+				"label": { "type": "string" },
+				"contents": {
+					"type": "array",
+					"items": { "type": "string" }
+				}
+			},
+			"required": ["id", "label", "contents"],
+			"additionalProperties": false
+		},
+		"LensPayload": {
+			"type": "object",
+			"properties": {
+				"sections": {
+					"type": "array",
+					"items": { "$ref": "#/$defs/LensSection" }
+				},
+				"callsToAction": {
+					"type": "array",
+					"items": { "type": "string" }
+				}
+			},
+			"required": ["sections", "callsToAction"],
+			"additionalProperties": false
+		},
 		"InterpretCard": {
-			"description": "Use when intent is ambiguous; offer 2–5 interpretations.",
 			"allOf": [
-				{ "$ref": "#/$defs/BaseCard" },
+				{ "$ref": "#/$defs/BaseFields" },
 				{
 					"type": "object",
 					"properties": {
@@ -82,15 +97,14 @@
 							"maxItems": 5
 						}
 					},
-					"required": ["kind", "options"],
-					"additionalProperties": false
+					"required": ["kind", "options"]
 				}
-			]
+			],
+			"unevaluatedProperties": false
 		},
 		"ProposeCard": {
-			"description": "Use when intent is clear and you want to offer 2–5 structured options.",
 			"allOf": [
-				{ "$ref": "#/$defs/BaseCard" },
+				{ "$ref": "#/$defs/BaseFields" },
 				{
 					"type": "object",
 					"properties": {
@@ -102,15 +116,14 @@
 							"maxItems": 5
 						}
 					},
-					"required": ["kind", "options"],
-					"additionalProperties": false
+					"required": ["kind", "options"]
 				}
-			]
+			],
+			"unevaluatedProperties": false
 		},
 		"MockupCard": {
-			"description": "Negotiate UI structure via layout regions.",
 			"allOf": [
-				{ "$ref": "#/$defs/BaseCard" },
+				{ "$ref": "#/$defs/BaseFields" },
 				{
 					"type": "object",
 					"properties": {
@@ -121,15 +134,14 @@
 							"minItems": 1
 						}
 					},
-					"required": ["kind", "regions"],
-					"additionalProperties": false
+					"required": ["kind", "regions"]
 				}
-			]
+			],
+			"unevaluatedProperties": false
 		},
 		"LensCard": {
-			"description": "Reveal underlying models/state (entities, flows, screens, permissions).",
 			"allOf": [
-				{ "$ref": "#/$defs/BaseCard" },
+				{ "$ref": "#/$defs/BaseFields" },
 				{
 					"type": "object",
 					"properties": {
@@ -140,15 +152,14 @@
 						},
 						"payload": { "$ref": "#/$defs/LensPayload" }
 					},
-					"required": ["kind", "lensType", "payload"],
-					"additionalProperties": false
+					"required": ["kind", "lensType", "payload"]
 				}
-			]
+			],
+			"unevaluatedProperties": false
 		},
 		"ErrorCard": {
-			"description": "Graceful failures: missing info, model uncertainty, invalid state.",
 			"allOf": [
-				{ "$ref": "#/$defs/BaseCard" },
+				{ "$ref": "#/$defs/BaseFields" },
 				{
 					"type": "object",
 					"properties": {
@@ -160,15 +171,14 @@
 						"details": { "type": "string" },
 						"recoveryHint": { "type": "string" }
 					},
-					"required": ["kind", "errorKind"],
-					"additionalProperties": false
+					"required": ["kind", "errorKind"]
 				}
-			]
+			],
+			"unevaluatedProperties": false
 		},
 		"SelectionSummaryCard": {
-			"description": "Lightweight acknowledgement of a structured selection.",
 			"allOf": [
-				{ "$ref": "#/$defs/BaseCard" },
+				{ "$ref": "#/$defs/BaseFields" },
 				{
 					"type": "object",
 					"properties": {
@@ -176,15 +186,12 @@
 						"selectionId": { "type": "string" },
 						"selectionLabel": { "type": "string" },
 						"selectionSummary": { "type": "string" },
-						"sourceCardKind": {
-							"type": "string",
-							"enum": ["interpret", "propose"]
-						}
+						"sourceCardKind": { "type": "string", "enum": ["interpret", "propose"] }
 					},
-					"required": ["kind", "selectionId", "selectionLabel", "sourceCardKind"],
-					"additionalProperties": false
+					"required": ["kind", "selectionId", "selectionLabel", "sourceCardKind"]
 				}
-			]
+			],
+			"unevaluatedProperties": false
 		}
 	}
 }

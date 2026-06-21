@@ -4,11 +4,38 @@
 	let { rail, children }: { rail: Snippet; children: Snippet } = $props();
 </script>
 
-<main class="flex h-full flex-col bg-surface-50-900">
-	<header class="border-b border-surface-200-800 bg-surface-50-900 p-4">
+<main>
+	<header>
 		{@render rail()}
 	</header>
-	<div class="flex-1 overflow-y-auto p-6">
+	<div>
 		{@render children()}
 	</div>
 </main>
+
+<style>
+	main {
+		display: flex;
+		height: 100%;
+		min-width: 0;
+		flex-direction: column;
+		background: linear-gradient(
+			180deg,
+			color-mix(in srgb, var(--color-surface-50, white) 90%, transparent),
+			color-mix(in srgb, var(--color-surface-100, #f4f4f5) 92%, transparent)
+		);
+	}
+
+	header {
+		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 78%, transparent);
+		background: color-mix(in srgb, var(--color-surface-50, white) 82%, transparent);
+		padding: 1rem;
+	}
+
+	main > div {
+		min-height: 0;
+		flex: 1;
+		overflow-y: auto;
+		padding: clamp(1rem, 2.8vw, 2rem);
+	}
+</style>

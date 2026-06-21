@@ -22,9 +22,5 @@
 	onRefine={props.onRefine}
 	onFork={props.onFork}
 >
-	<CardOptionList
-		options={props.message.spec.options}
-		onSelect={selectOption}
-		showToken
-	/>
+	<CardOptionList options={props.message.spec.options} onSelect={selectOption} showToken />
 </CardShell>

@@ -1,26 +1,38 @@
 # Implementation Tasks
 
 - [x] **Slice 1: The Decisions Rail (Foundation & Refactor)** <!-- id: 0 -->
-    - [x] **Refactor Store**: Replace `planning-store.ts` with `decisions-store.ts` <!-- id: 1 -->
-    - [x] **Database Schema**: Create `decisions` table in SQLite <!-- id: 2 -->
-    - [x] **Abstract Orchestration**: Update `+page.svelte` to handle generic "Accept" events <!-- id: 3 -->
-    - [x] **UI Implementation**: Transform `PlanningPanel` into a horizontal **Decisions Rail** <!-- id: 4 -->
+  - [x] **Refactor Store**: Replace `planning-store.ts` with `decisions-store.ts` <!-- id: 1 -->
+  - [x] **Database Schema**: Create `decisions` table in SQLite <!-- id: 2 -->
+  - [x] **Abstract Orchestration**: Update `+page.svelte` to handle generic "Accept" events <!-- id: 3 -->
+  - [x] **UI Implementation**: Transform `PlanningPanel` into a horizontal **Decisions Rail** <!-- id: 4 -->
 - [x] **Slice 2: The Refine Loop** <!-- id: 5 -->
-    - [x] Add "Refine" action to cards <!-- id: 6 -->
-    - [x] Create Refine Panel <!-- id: 7 -->
-    - [x] Implement Versioning logic <!-- id: 8 -->
+  - [x] Add "Refine" action to cards <!-- id: 6 -->
+  - [x] Create Refine Panel <!-- id: 7 -->
+  - [x] Implement Versioning logic <!-- id: 8 -->
 - [x] **Slice 3: Fork & Branching** <!-- id: 9 -->
-    - [x] Add "Fork" action <!-- id: 10 -->
-    - [x] Support branching in DB <!-- id: 11 -->
-    - [x] Visualize branches in Rail (Active Path implemented) <!-- id: 12 -->
+  - [x] Add "Fork" action <!-- id: 10 -->
+  - [x] Support branching in DB <!-- id: 11 -->
+  - [x] Visualize branches in Rail (Active Path implemented) <!-- id: 12 -->
 - [x] **Slice 4: Structured Canvas Layout** <!-- id: 13 -->
-    - [x] Move Chat to sidebar <!-- id: 14 -->
-    - [x] Dedicate main area to Active Card <!-- id: 15 -->
-    - [x] Implement Branch Navigation UI <!-- id: 22 -->
+  - [x] Move Chat to sidebar <!-- id: 14 -->
+  - [x] Dedicate main area to Active Card <!-- id: 15 -->
+  - [x] Implement Branch Navigation UI <!-- id: 22 -->
 - [/] **Slice 5: Real Model Integration** <!-- id: 16 -->
-    - [x] Migrate to Google Gemini (Switch from OpenAI) <!-- id: 17 -->
-    - [x] Implement Rail-aware prompting <!-- id: 18 -->
-    - [x] Use `response_format` for card schemas <!-- id: 19 -->
-    - [x] Create `PromptBox` component with `contenteditable` <!-- id: 20 -->
-    - [x] Style as premium AI input <!-- id: 21 -->
-    - [x] **Environment**: Switch to `pnpm` for package management <!-- id: 23 -->
+  - [x] Replace direct provider coupling with a card-generator adapter <!-- id: 17 -->
+  - [x] Add deterministic fake mode for local/test loops <!-- id: 18 -->
+  - [x] Add Vercel AI Gateway mode behind `CARD_GENERATOR_MODE=gateway` <!-- id: 19 -->
+  - [x] Align Zod, TypeScript, and JSON Schema card contracts <!-- id: 20 -->
+  - [x] Add explicit Accept for inspect cards <!-- id: 21 -->
+  - [x] Persist real `parentId` values for branch paths <!-- id: 23 -->
+  - [x] Keep model integration on AI SDK 6 stable; defer AI SDK 7 beta <!-- id: 26 -->
+  - [ ] Verify live Gateway after Vercel login/link/env pull <!-- id: 24 -->
+  - [x] Move the repo runtime to Node 26 and rebuild dependencies under that runtime <!-- id: 28 -->
+  - [x] Install Playwright Chromium headless shell for local unit/E2E tests <!-- id: 27 -->
+  - [x] Revisit product goals after the stabilized fake loop is green <!-- id: 25 -->
+- [x] **Slice 6: Project Alpha Resumable Product Spec Workspace** <!-- id: 29 -->
+  - [x] Add `projects` and `artifacts` persistence with migration for existing decisions <!-- id: 30 -->
+  - [x] Add project selector and new-project flow to the main workspace <!-- id: 31 -->
+  - [x] Convert accepted inspect cards into durable `product-spec` artifacts <!-- id: 32 -->
+  - [x] Render canvas from persisted artifacts instead of inferred head cards <!-- id: 33 -->
+  - [x] Focus fake/Gateway card generation context on the product-spec workflow <!-- id: 34 -->
+  - [x] Add product-spec artifact builder tests and E2E reload persistence coverage <!-- id: 35 -->

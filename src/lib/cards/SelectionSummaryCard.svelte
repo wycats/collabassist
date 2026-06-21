@@ -10,9 +10,9 @@
 
 	let { message }: Props = $props();
 
-	const card = message.spec;
-	const phaseLabel = card.sourceCardKind === 'interpret' ? 'Interpretation' : 'Proposal';
-	const token = getOptionToken(card.selectionId);
+	let card = $derived(message.spec);
+	let phaseLabel = $derived(card.sourceCardKind === 'interpret' ? 'Interpretation' : 'Proposal');
+	let token = $derived(getOptionToken(card.selectionId));
 </script>
 
 <!-- Hybrid variant: vertical dot + compact arrow line

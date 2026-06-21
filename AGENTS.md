@@ -322,8 +322,8 @@ To support continued operation across sessions and machines, agents should treat
 
 ### 10.1 Strategy
 
--   **Serialize**: At the end of a session or significant milestone, agents should serialize their key markdown artifacts (e.g., `task.md`, `implementation_plan.md`, `design_vision.md`) into `.agent/memory`.
--   **Restore**: At the start of a new session, agents should read the contents of `.agent/memory` to restore their context and understanding of the project state.
+- **Serialize**: At the end of a session or significant milestone, agents should serialize their key markdown artifacts (e.g., `task.md`, `implementation_plan.md`, `design_vision.md`) into `.agent/memory`.
+- **Restore**: At the start of a new session, agents should read the contents of `.agent/memory` to restore their context and understanding of the project state.
 
 ### 10.2 Workflow
 

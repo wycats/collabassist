@@ -2,17 +2,20 @@
 	import type { ComponentType } from 'svelte';
 	import type { Message, TextMessage, CardMessage, ArtifactLinkMessage } from '$lib/domain/message';
 	import { cardRegistry } from '$lib/ui/card-registry';
+	import type { AnyCard } from '$lib/cards/types';
 
 	const props = $props<{
 		message: Message;
 		onCardSubmit?: (
 			payload: { messageId: string; cardType: string } & Record<string, unknown>
 		) => void;
-		onRefine?: (card: any) => void;
-		onFork?: (card: any) => void;
+		onAccept?: (card: AnyCard) => void;
+		onRefine?: (card: AnyCard) => void;
+		onFork?: (card: AnyCard) => void;
+		isCardAccepted?: (card: AnyCard) => boolean;
 	}>();
 
-	const isUser = props.message.role === 'user';
+	let isUser = $derived(props.message.role === 'user');
 
 	type RegisteredCardType = keyof typeof cardRegistry;
 
@@ -29,15 +32,13 @@
 	}
 </script>
 
-<div class={`mb-2 flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-	<div class={`flex items-end gap-2 ${props.message.kind === 'text' ? 'max-w-[80%]' : 'w-full'}`}>
+<div class={`message-row ${isUser ? 'is-user' : 'is-assistant'}`}>
+	<div
+		class={props.message.kind === 'text' ? 'message-frame text-frame' : 'message-frame card-frame'}
+	>
 		<div
-			class={`rounded-2xl px-3 py-2 text-sm leading-snug ${
-				props.message.kind === 'text'
-					? isUser
-						? 'bg-primary-500 text-primary-50 shadow-sm'
-						: 'text-surface-900-50 border border-surface-200-800/70 bg-surface-100-900'
-					: ''
+			class={`message-bubble ${
+				props.message.kind === 'text' ? (isUser ? 'user-text' : 'assistant-text') : ''
 			}`}
 		>
 			{#if props.message.kind === 'text'}
@@ -45,14 +46,18 @@
 			{:else if props.message.kind === 'card'}
 				{#key props.message.id}
 					{@const cardMessage = props.message as CardMessage}
+					{@const cardSpec = cardMessage.spec as AnyCard}
 					{@const CardComponent = getCardComponent(cardMessage.cardType)}
 					{#if CardComponent}
 						<CardComponent
 							message={cardMessage}
 							onSubmit={(detail: Record<string, unknown>) =>
 								handleCardSubmit(detail ?? {}, cardMessage)}
-							onRefine={() => props.onRefine?.(cardMessage.spec)}
-							onFork={() => props.onFork?.(cardMessage.spec)}
+							onAccept={props.onAccept && !props.isCardAccepted?.(cardSpec)
+								? () => props.onAccept?.(cardSpec)
+								: undefined}
+							onRefine={() => props.onRefine?.(cardSpec)}
+							onFork={() => props.onFork?.(cardSpec)}
 						/>
 					{:else}
 						<div class="text-surface-600-300 text-xs">
@@ -72,3 +77,59 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	.message-row {
+		margin-bottom: 0.65rem;
+		display: flex;
+	}
+
+	.message-row.is-user {
+		justify-content: flex-end;
+	}
+
+	.message-row.is-assistant {
+		justify-content: flex-start;
+	}
+
+	.message-frame {
+		display: flex;
+		align-items: end;
+		gap: 0.5rem;
+	}
+
+	.text-frame {
+		max-width: 82%;
+	}
+
+	.card-frame {
+		width: 100%;
+	}
+
+	.message-bubble {
+		border-radius: 0.82rem;
+		font-size: 0.9rem;
+		line-height: 1.45;
+	}
+
+	.message-bubble p {
+		margin: 0;
+	}
+
+	.message-bubble.user-text,
+	.message-bubble.assistant-text {
+		padding: 0.58rem 0.72rem;
+	}
+
+	.user-text {
+		background: var(--color-primary-500, #2563eb);
+		color: var(--color-primary-50, white);
+		box-shadow: 0 8px 18px hsl(220 28% 18% / 0.12);
+	}
+
+	.assistant-text {
+		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 78%, transparent);
+		background: color-mix(in srgb, var(--color-surface-50, white) 86%, transparent);
+		color: var(--color-surface-900);
+	}
+</style>

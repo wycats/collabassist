@@ -1,5 +1,4 @@
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
-import devtoolsJson from 'vite-plugin-devtools-json';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
@@ -9,17 +8,28 @@ export default defineConfig({
 	plugins: [
 		tailwindcss(),
 		sveltekit(),
-		devtoolsJson(),
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide'
 		})
 	],
+	server: {
+		watch: {
+			ignored: ['**/build/**']
+		}
+	},
+	optimizeDeps: {
+		include: [
+			'@lucide/svelte/icons/git-fork',
+			'@lucide/svelte/icons/pencil-line',
+			'@lucide/svelte/icons/plus'
+		]
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
 			{
-				extends: './vite.config.ts',
+				extends: true,
 				test: {
 					name: 'client',
 					browser: {
@@ -32,7 +42,7 @@ export default defineConfig({
 				}
 			},
 			{
-				extends: './vite.config.ts',
+				extends: true,
 				test: {
 					name: 'server',
 					environment: 'node',

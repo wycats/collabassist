@@ -1,7 +1,10 @@
 <script lang="ts">
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+	import Plus from '@lucide/svelte/icons/plus';
+	import SendHorizontal from '@lucide/svelte/icons/send-horizontal';
+	import { resolve } from '$app/paths';
 	import Button from '$lib/ui/Button.svelte';
 	import MessageView from '$lib/ui/MessageView.svelte';
-
 	import ChatThread from '$lib/chat/ChatThread.svelte';
 	import ChatComposer from '$lib/chat/ChatComposer.svelte';
 	import PlanningPanel from '$lib/chat/PlanningPanel.svelte';
@@ -10,131 +13,297 @@
 	import PromptBox from '$lib/ui/PromptBox.svelte';
 	import Sidebar from '$lib/layout/Sidebar.svelte';
 	import Canvas from '$lib/layout/Canvas.svelte';
-
 	import {
 		type CardMessage,
 		type Message,
 		createUserTextMessage,
 		createAssistantTextMessage
 	} from '$lib/domain/message';
-
 	import type { ChoiceOption } from '$lib/domain/card';
 	import type {
-		InterpretCard as InterpretCardSpec,
+		AnyCard,
+		InterpretCard,
 		InterpretOption,
-		ProposeCard as ProposeCardSpec,
+		ProposeCard,
 		ProposeOption,
-		SelectionSummaryCard as SelectionSummaryCardSpec,
 		SelectionSourceKind,
-		LensCard as LensCardSpec,
-		MockupCard as MockupCardSpec,
-		AnyCard
+		SelectionSummaryCard
 	} from '$lib/cards/types';
 	import { INITIAL_PHASE, type Phase } from '$lib/domain/phase';
 	import { decisions } from '$lib/domain/decisions-store';
+	import type { DecisionNode } from '$lib/domain/decisions-store';
+	import type { ProductSpecArtifact } from '$lib/domain/artifact';
+	import type { Project } from '$lib/domain/project';
 	import type { PageData } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	const fallbackProject: Project = {
+		id: 'local-product-spec',
+		title: 'Untitled product spec',
+		seedPrompt: null,
+		activeHeadId: null,
+		pinnedArtifactId: null,
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString()
+	};
 
-	const { activePath } = decisions;
+	let {
+		data = {
+			projects: [fallbackProject],
+			activeProject: fallbackProject,
+			decisions: [],
+			artifacts: [],
+			pinnedArtifact: null
+		}
+	}: { data?: PageData } = $props();
 
-	// Initialize decisions store with server data
+	const activePath = decisions.activePath;
+	const head = decisions.head;
+
+	function initialProjects(pageData: PageData) {
+		return pageData.projects ?? [fallbackProject];
+	}
+
+	function initialActiveProject(pageData: PageData) {
+		return pageData.activeProject ?? fallbackProject;
+	}
+
+	function initialArtifacts(pageData: PageData) {
+		return pageData.artifacts ?? [];
+	}
+
 	$effect(() => {
+		projects = data.projects ?? [fallbackProject];
+		activeProject = data.activeProject ?? fallbackProject;
+		artifacts = data.artifacts ?? [];
 		if (data.decisions) {
-			decisions.set(data.decisions);
+			decisions.set(data.decisions, data.activeProject?.activeHeadId ?? null);
 		}
 	});
 
+	// Load data seeds mutable workspace state for SSR; the effect above syncs later navigations.
+	// svelte-ignore state_referenced_locally
+	let projects: Project[] = $state(initialProjects(data));
+	// svelte-ignore state_referenced_locally
+	let activeProject: Project = $state(initialActiveProject(data));
+	// svelte-ignore state_referenced_locally
+	let artifacts: ProductSpecArtifact[] = $state(initialArtifacts(data));
 	let messages: Message[] = $state([
-		createAssistantTextMessage(
-			'Welcome to the experimental AI client. Try typing, or inject a sample interpret card.'
-		)
+		createAssistantTextMessage('Welcome back to Collabassist. Send a prompt to start a card loop.')
 	]);
-
 	let draft = $state('');
 	let phase: Phase = $state(INITIAL_PHASE);
 	let isRequestInFlight = $state(false);
 	let refiningCard: AnyCard | null = $state(null);
+	let candidateParentIds: Record<string, string | null> = $state({});
+	let activeArtifact = $derived(artifactForPath($activePath, artifacts));
 
-	function handleRefine(card: AnyCard) {
-		refiningCard = card;
+	type CardRequestPhase = Phase | 'refine' | 'fork';
+
+	type CardRequest = {
+		messages?: { role: string; content: string }[];
+		phase: CardRequestPhase;
+		interaction?: Record<string, unknown>;
+	};
+
+	type DecisionResponse = {
+		decision: DecisionNode;
+		artifact?: ProductSpecArtifact | null;
+	};
+
+	function cardTypeFor(card: AnyCard) {
+		if (card.kind === 'selection-summary') return 'selection-summary';
+		return `ai-${card.kind}`;
 	}
 
-	function rewindToMessage(messageId: string) {
-		const index = messages.findIndex((m) => m.id === messageId);
-		if (index === -1) return;
-		messages = messages.slice(0, index + 1);
+	function artifactForPath(path: DecisionNode[], artifactList: ProductSpecArtifact[]) {
+		const artifactByDecisionId = new Map(
+			artifactList.map((artifact) => [artifact.sourceDecisionId, artifact])
+		);
+
+		for (const decision of path.slice().reverse()) {
+			const artifact = artifactByDecisionId.get(decision.id);
+			if (artifact) return artifact;
+		}
+
+		return null;
+	}
+
+	function summarizeArtifact(artifact: ProductSpecArtifact | null) {
+		if (!artifact) return null;
+		return `${artifact.title}: ${artifact.data.brief.summary}`;
+	}
+
+	function upsertArtifact(artifact: ProductSpecArtifact) {
+		artifacts = [...artifacts.filter((existing) => existing.id !== artifact.id), artifact];
+		activeProject = {
+			...activeProject,
+			pinnedArtifactId: artifact.id,
+			updatedAt: artifact.updatedAt
+		};
+		projects = projects.map((project) =>
+			project.id === activeProject.id ? activeProject : project
+		);
+	}
+
+	async function updateActiveProject(updates: Partial<Project>) {
+		const response = await fetch(`/api/projects/${activeProject.id}`, {
+			method: 'PATCH',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify(updates)
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to update project');
+		}
+
+		activeProject = await response.json();
+		projects = projects.map((project) =>
+			project.id === activeProject.id ? activeProject : project
+		);
+		return activeProject;
+	}
+
+	async function ensureProjectSeed(prompt: string) {
+		if (activeProject.seedPrompt) return activeProject;
+		return updateActiveProject({ seedPrompt: prompt });
+	}
+
+	async function createProject() {
+		const response = await fetch('/api/projects', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({})
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to create project');
+		}
+
+		const project = (await response.json()) as Project;
+		window.location.assign(`${resolve('/')}?projectId=${project.id}`);
+	}
+
+	function handleProjectChange(event: Event) {
+		const select = event.target as HTMLSelectElement;
+		if (select.value && select.value !== activeProject.id) {
+			window.location.assign(`${resolve('/')}?projectId=${select.value}`);
+		}
+	}
+
+	async function handleHeadChange(headId: string) {
+		try {
+			await updateActiveProject({ activeHeadId: headId });
+		} catch (error) {
+			console.error(error);
+			messages = [
+				...messages,
+				createAssistantTextMessage("I couldn't save that branch selection.")
+			];
+		}
+	}
+
+	function appendAssistantCard(card: AnyCard) {
+		const cardMessage: CardMessage<AnyCard> = {
+			id: card.id,
+			role: 'assistant',
+			kind: 'card',
+			cardType: cardTypeFor(card),
+			spec: card,
+			createdAt: new Date().toISOString()
+		};
+
+		messages = [...messages, cardMessage];
+	}
+
+	async function requestCard(body: CardRequest) {
+		const response = await fetch('/api/cards', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				projectId: activeProject.id,
+				seedPrompt: activeProject.seedPrompt,
+				currentArtifactSummary: summarizeArtifact(activeArtifact),
+				messages: body.messages ?? [],
+				phase: body.phase,
+				activePath: $activePath,
+				interaction: body.interaction
+			})
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch card');
+		}
+
+		return (await response.json()) as AnyCard;
 	}
 
 	async function sendMessage() {
 		const trimmed = draft.trim();
-		if (!trimmed) return;
+		if (!trimmed || isRequestInFlight) return;
 
 		const userMsg = createUserTextMessage(trimmed);
 		messages = [...messages, userMsg];
 		draft = '';
-
-		await requestInterpretCard(trimmed);
-	}
-
-	async function requestInterpretCard(latestUserMessage: string) {
-		if (isRequestInFlight) return;
+		phase = 'discover';
 		isRequestInFlight = true;
 
 		try {
-			const response = await fetch('/api/cards', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({
-					messages: [{ role: 'user', content: latestUserMessage }],
-					phase,
-					activePath: $activePath
-				})
+			await ensureProjectSeed(trimmed);
+			const card = await requestCard({
+				messages: [{ role: 'user', content: trimmed }],
+				phase
 			});
-
-			if (!response.ok) {
-				throw new Error('Failed to fetch interpret card');
-			}
-
-			const card = (await response.json()) as InterpretCardSpec;
-
-			const cardMessage: CardMessage<InterpretCardSpec> = {
-				id: card.id,
-				role: 'assistant',
-				kind: 'card',
-				cardType: 'ai-interpret',
-				spec: card,
-				createdAt: new Date().toISOString()
-			};
-
-			messages = [...messages, cardMessage];
+			appendAssistantCard(card);
 		} catch (error) {
 			console.error(error);
-			const assistantMsg = createAssistantTextMessage(
-				"I couldn't generate an interpret card just now. Try again in a moment."
-			);
-			messages = [...messages, assistantMsg];
+			messages = [
+				...messages,
+				createAssistantTextMessage("I couldn't generate an interpret card just now.")
+			];
 		} finally {
 			isRequestInFlight = false;
 		}
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Enter' && !event.shiftKey) {
-			event.preventDefault();
-			sendMessage();
-		}
+	async function injectSampleInterpretCard() {
+		if (isRequestInFlight) return;
+		draft = 'Help me design the next collaboration loop for this app.';
+		await sendMessage();
 	}
 
-	async function injectSampleInterpretCard() {
-		await requestInterpretCard('Sample interpret card injection');
+	function rewindToMessage(messageId: string) {
+		const index = messages.findIndex((message) => message.id === messageId);
+		if (index === -1) return;
+		messages = messages.slice(0, index + 1);
+	}
+
+	function findCardMessage<TCard extends AnyCard>(messageId: string) {
+		return messages.find(
+			(message): message is CardMessage<TCard> =>
+				message.kind === 'card' && message.id === messageId
+		);
+	}
+
+	function findDecisionForCard(card: AnyCard) {
+		return $decisions.find(
+			(decision) => decision.cardId === card.id || decision.cardSnapshot.id === card.id
+		);
+	}
+
+	function isCardAccepted(card: AnyCard) {
+		return Boolean(findDecisionForCard(card));
+	}
+
+	function parentIdForCandidate(sourceCard: AnyCard) {
+		const sourceDecision = findDecisionForCard(sourceCard);
+		return sourceDecision ? sourceDecision.parentId : ($head?.id ?? null);
 	}
 
 	function appendSelectionSummaryCard(
 		option: InterpretOption | ProposeOption,
 		sourceCardKind: SelectionSourceKind
 	) {
-		const spec: SelectionSummaryCardSpec = {
+		const spec: SelectionSummaryCard = {
 			id: crypto.randomUUID(),
 			kind: 'selection-summary',
 			title: sourceCardKind === 'interpret' ? 'Interpretation locked in' : 'Proposal selected',
@@ -142,139 +311,75 @@
 				sourceCardKind === 'interpret'
 					? 'We will explore this interpretation next.'
 					: 'Using this proposal as the spine for inspection.',
-			flowId: 'slice-1',
+			flowId: 'stabilized-loop',
 			selectionId: option.id,
 			selectionLabel: option.label,
 			selectionSummary: option.summary,
 			sourceCardKind
 		};
 
-		const summaryMessage: CardMessage<SelectionSummaryCardSpec> = {
-			id: crypto.randomUUID(),
-			role: 'assistant',
-			kind: 'card',
-			cardType: 'selection-summary',
-			spec,
-			createdAt: new Date().toISOString()
+		appendAssistantCard(spec);
+	}
+
+	async function persistDecision(
+		card: AnyCard,
+		summary: string | null = null,
+		parentId = $head?.id ?? null
+	) {
+		const response = await fetch('/api/decisions', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				projectId: activeProject.id,
+				cardId: card.id,
+				parentId,
+				summary,
+				cardSnapshot: card
+			})
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to persist decision');
+		}
+
+		const result = (await response.json()) as DecisionResponse;
+		decisions.add(result.decision);
+		activeProject = {
+			...activeProject,
+			activeHeadId: result.decision.id,
+			pinnedArtifactId: result.artifact?.id ?? activeProject.pinnedArtifactId
 		};
-
-		messages = [...messages, summaryMessage];
+		projects = projects.map((project) =>
+			project.id === activeProject.id ? activeProject : project
+		);
+		if (result.artifact) upsertArtifact(result.artifact);
+		return result.decision;
 	}
 
-	async function fetchProposeCard(optionId: string) {
-		isRequestInFlight = true;
-		try {
-			phase = 'shape';
-			const response = await fetch('/api/cards', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({
-					messages: [],
-					phase,
-					activePath: $activePath,
-					interaction: {
-						type: 'interpret.selection',
-						optionId
-					}
-				})
-			});
-
-			if (!response.ok) {
-				throw new Error('Failed to fetch propose card');
+	async function fetchProposeCard(option: InterpretOption, sourceCard: InterpretCard) {
+		phase = 'shape';
+		const card = await requestCard({
+			phase,
+			interaction: {
+				type: 'interpret.selection',
+				optionId: option.id,
+				sourceCard
 			}
-
-			const card = (await response.json()) as ProposeCardSpec;
-
-			const cardMessage: CardMessage<ProposeCardSpec> = {
-				id: card.id,
-				role: 'assistant',
-				kind: 'card',
-				cardType: 'ai-propose',
-				spec: card,
-				createdAt: new Date().toISOString()
-			};
-
-			messages = [...messages, cardMessage];
-		} catch (error) {
-			console.error(error);
-			const assistantMsg = createAssistantTextMessage(
-				"I couldn't generate a propose card just now. Try again in a moment."
-			);
-			messages = [...messages, assistantMsg];
-		} finally {
-			isRequestInFlight = false;
-		}
+		});
+		appendAssistantCard(card);
 	}
 
-	async function fetchInspectCard(optionId: string) {
-		isRequestInFlight = true;
-		try {
-			phase = 'inspect';
-			const response = await fetch('/api/cards', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({
-					messages: [],
-					phase,
-					activePath: $activePath,
-					interaction: {
-						type: 'propose.selection',
-						optionId
-					}
-				})
-			});
-
-			if (!response.ok) {
-				throw new Error('Failed to fetch inspect card');
+	async function fetchInspectCard(option: ProposeOption, sourceCard: ProposeCard) {
+		phase = 'inspect';
+		const card = await requestCard({
+			phase,
+			interaction: {
+				type: 'propose.selection',
+				optionId: option.id,
+				sourceCard
 			}
-
-			const card = (await response.json()) as LensCardSpec | MockupCardSpec;
-			
-			// Note: We no longer lock inspect here, we just show the card.
-			// The user must explicitly "Accept" it to add to the rail (future slice).
-			// For now, we treat interpret/propose selection as implicit acceptance for the rail.
-
-			const isLens = card.kind === 'lens';
-			const cardMessage: CardMessage<LensCardSpec | MockupCardSpec> = {
-				id: card.id,
-				role: 'assistant',
-				kind: 'card',
-				cardType: isLens ? 'ai-lens' : 'ai-mockup',
-				spec: card,
-				createdAt: new Date().toISOString()
-			};
-
-			messages = [...messages, cardMessage];
-		} catch (error) {
-			console.error(error);
-			const assistantMsg = createAssistantTextMessage(
-				"I couldn't generate an inspect card just now. Try again in a moment."
-			);
-			messages = [...messages, assistantMsg];
-		} finally {
-			isRequestInFlight = false;
-		}
-	}
-
-	async function persistDecision(card: AnyCard, summary: string | null = null) {
-		try {
-			const response = await fetch('/api/decisions', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({
-					cardId: card.id,
-					parentId: null, // TODO: Handle branching
-					summary,
-					cardSnapshot: card
-				})
-			});
-
-			if (!response.ok) throw new Error('Failed to persist decision');
-			const decision = await response.json();
-			decisions.add(decision);
-		} catch (e) {
-			console.error('Failed to save decision', e);
-		}
+		});
+		appendAssistantCard(card);
 	}
 
 	async function handleCardSubmit(payload: {
@@ -285,143 +390,132 @@
 	}) {
 		if (payload.cardType === 'choice' && payload.choice) {
 			const { choice } = payload;
-
-			const userMsg = createUserTextMessage(
-				`I chose: ${choice.label}${choice.description ? ` — ${choice.description}` : ''}`
-			);
-
-			messages = [...messages, userMsg];
+			messages = [
+				...messages,
+				createUserTextMessage(
+					`I chose: ${choice.label}${choice.description ? ` - ${choice.description}` : ''}`
+				)
+			];
+			return;
 		}
 
 		if (payload.cardType === 'ai-interpret' && payload.option) {
 			if (isRequestInFlight) return;
+			isRequestInFlight = true;
 			rewindToMessage(payload.messageId);
-			
-			// Find the card spec from messages to snapshot it
-			const cardMsg = messages.find(m => m.id === payload.messageId) as CardMessage<InterpretCardSpec>;
-			if (cardMsg) {
-				// Create a synthetic "Accepted" version of the card with the selection locked?
-				// For now, just snapshot the interpret card and note the selection in summary
-				await persistDecision(cardMsg.spec, `Selected intent: ${payload.option.label}`);
-			}
 
-			appendSelectionSummaryCard(payload.option, 'interpret');
-			await fetchProposeCard(payload.option.id);
+			try {
+				const cardMsg = findCardMessage<InterpretCard>(payload.messageId);
+				if (!cardMsg) throw new Error('Interpret card was not found');
+
+				await persistDecision(cardMsg.spec, `Selected intent: ${payload.option.label}`);
+				appendSelectionSummaryCard(payload.option, 'interpret');
+				await fetchProposeCard(payload.option, cardMsg.spec);
+			} catch (error) {
+				console.error(error);
+				messages = [...messages, createAssistantTextMessage("I couldn't commit that intent.")];
+			} finally {
+				isRequestInFlight = false;
+			}
 		}
 
 		if (payload.cardType === 'ai-propose' && payload.option) {
 			if (isRequestInFlight) return;
+			isRequestInFlight = true;
 			rewindToMessage(payload.messageId);
 
-			const cardMsg = messages.find(m => m.id === payload.messageId) as CardMessage<ProposeCardSpec>;
-			if (cardMsg) {
-				await persistDecision(cardMsg.spec, `Selected path: ${payload.option.label}`);
-			}
+			try {
+				const cardMsg = findCardMessage<ProposeCard>(payload.messageId);
+				if (!cardMsg) throw new Error('Propose card was not found');
 
-			appendSelectionSummaryCard(payload.option, 'propose');
-			await fetchInspectCard(payload.option.id);
+				await persistDecision(cardMsg.spec, `Selected path: ${payload.option.label}`);
+				appendSelectionSummaryCard(payload.option, 'propose');
+				await fetchInspectCard(payload.option, cardMsg.spec);
+			} catch (error) {
+				console.error(error);
+				messages = [...messages, createAssistantTextMessage("I couldn't commit that path.")];
+			} finally {
+				isRequestInFlight = false;
+			}
 		}
 	}
-	async function handleRefineApply(instructions: string) {
-		if (!refiningCard || isRequestInFlight) return;
+
+	async function handleAccept(card: AnyCard) {
+		if (isRequestInFlight || card.kind === 'selection-summary' || isCardAccepted(card)) return;
 		isRequestInFlight = true;
-		const cardToRefine = refiningCard; // Capture for async
-		refiningCard = null; // Close panel
 
 		try {
-			const userMsg = createUserTextMessage(`Refine "${cardToRefine.title}": ${instructions}`);
-			messages = [...messages, userMsg];
-
-			const response = await fetch('/api/cards', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({
-					messages: [], // We could pass history, but for now just the refine context
-					phase: 'refine',
-					activePath: $activePath,
-					interaction: {
-						type: 'refine',
-						sourceCard: cardToRefine,
-						instructions
-					}
-				})
-			});
-
-			if (!response.ok) throw new Error('Failed to refine card');
-
-			const newCard = (await response.json()) as AnyCard;
-
-			const cardMessage: CardMessage<AnyCard> = {
-				id: newCard.id,
-				role: 'assistant',
-				kind: 'card',
-				cardType: `ai-${newCard.kind}`, // Assuming kind maps to cardType for now
-				spec: newCard,
-				createdAt: new Date().toISOString()
-			};
-
-			messages = [...messages, cardMessage];
+			const parentId =
+				card.id in candidateParentIds ? candidateParentIds[card.id] : ($head?.id ?? null);
+			await persistDecision(card, `Accepted ${card.kind}: ${card.title}`, parentId);
+			delete candidateParentIds[card.id];
+			messages = [...messages, createUserTextMessage(`Accept "${card.title}"`)];
 		} catch (error) {
 			console.error(error);
-			const assistantMsg = createAssistantTextMessage(
-				"I couldn't refine the card just now. Try again in a moment."
-			);
-			messages = [...messages, assistantMsg];
+			messages = [...messages, createAssistantTextMessage("I couldn't accept that card.")];
 		} finally {
 			isRequestInFlight = false;
 		}
 	}
+
+	function handleRefine(card: AnyCard) {
+		refiningCard = card;
+	}
+
+	async function handleRefineApply(instructions: string) {
+		if (!refiningCard || isRequestInFlight) return;
+		isRequestInFlight = true;
+		const cardToRefine = refiningCard;
+		refiningCard = null;
+
+		try {
+			messages = [
+				...messages,
+				createUserTextMessage(`Refine "${cardToRefine.title}": ${instructions}`)
+			];
+			const candidateParentId = parentIdForCandidate(cardToRefine);
+			const card = await requestCard({
+				phase: 'refine',
+				interaction: {
+					type: 'refine',
+					sourceCard: cardToRefine,
+					instructions
+				}
+			});
+			candidateParentIds[card.id] = candidateParentId;
+			appendAssistantCard(card);
+		} catch (error) {
+			console.error(error);
+			messages = [...messages, createAssistantTextMessage("I couldn't refine the card just now.")];
+		} finally {
+			isRequestInFlight = false;
+		}
+	}
+
 	async function handleFork(card: AnyCard) {
 		if (isRequestInFlight) return;
 		isRequestInFlight = true;
 
 		try {
-			const userMsg = createUserTextMessage(`Fork "${card.title}"`);
-			messages = [...messages, userMsg];
-
-			const response = await fetch('/api/cards', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({
-					messages: [],
-					phase: 'fork',
-					activePath: $activePath,
-					interaction: {
-						type: 'fork',
-						sourceCard: card
-					}
-				})
+			messages = [...messages, createUserTextMessage(`Fork "${card.title}"`)];
+			const candidateParentId = parentIdForCandidate(card);
+			const forkedCard = await requestCard({
+				phase: 'fork',
+				interaction: {
+					type: 'fork',
+					sourceCard: card
+				}
 			});
-
-			if (!response.ok) throw new Error('Failed to fork card');
-
-			const newCard = (await response.json()) as AnyCard;
-
-			const cardMessage: CardMessage<AnyCard> = {
-				id: newCard.id,
-				role: 'assistant',
-				kind: 'card',
-				cardType: `ai-${newCard.kind}`,
-				spec: newCard,
-				createdAt: new Date().toISOString()
-			};
-
-			messages = [...messages, cardMessage];
+			candidateParentIds[forkedCard.id] = candidateParentId;
+			appendAssistantCard(forkedCard);
 		} catch (error) {
 			console.error(error);
-			const assistantMsg = createAssistantTextMessage(
-				"I couldn't fork the card just now. Try again in a moment."
-			);
-			messages = [...messages, assistantMsg];
+			messages = [...messages, createAssistantTextMessage("I couldn't fork the card just now.")];
 		} finally {
 			isRequestInFlight = false;
 		}
 	}
 </script>
-
-{#snippet HeaderRight()}
-	<span> Stack: Svelte 5 · Skeleton · Bits · Baseline-first </span>
-{/snippet}
 
 {#snippet ThreadActions()}
 	<Button variant="secondary" onclick={injectSampleInterpretCard}
@@ -429,12 +523,12 @@
 	>
 {/snippet}
 
-<div class="grid h-screen grid-cols-1 lg:grid-cols-[420px_1fr] overflow-hidden">
-	<!-- Sidebar (Chat) -->
+<div class="app-shell" data-theme="cerberus">
+	<h1 class="sr-only">Collabassist</h1>
 	<Sidebar>
 		{#snippet footer()}
-			<ChatComposer onSubmit={sendMessage}>
-				<div class="flex items-end gap-2">
+			<ChatComposer>
+				<div class="composer-row">
 					<PromptBox
 						bind:value={draft}
 						placeholder="Ask anything..."
@@ -445,38 +539,66 @@
 						type="button"
 						variant="primary"
 						size="sm"
+						aria-label="Send prompt"
+						title="Send prompt"
 						disabled={!draft.trim() || isRequestInFlight}
 						onclick={sendMessage}
-						class="mb-0.5 rounded-full w-8 h-8 !p-0 flex items-center justify-center shrink-0"
+						class="send-button"
 					>
 						{#if isRequestInFlight}
-							<div class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+							<LoaderCircle size={16} class="animate-spin" aria-hidden="true" />
 						{:else}
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-								<path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
-							</svg>
+							<SendHorizontal size={16} aria-hidden="true" />
 						{/if}
 					</Button>
 				</div>
 			</ChatComposer>
 		{/snippet}
 
+		<div class="workspace-brand">
+			<div>
+				<p>Collabassist</p>
+				<span>Product spec workspace</span>
+			</div>
+			<div class="project-controls">
+				<label>
+					<span class="sr-only">Active project</span>
+					<select value={activeProject.id} onchange={handleProjectChange}>
+						{#each projects as project (project.id)}
+							<option value={project.id}>{project.title}</option>
+						{/each}
+					</select>
+				</label>
+				<Button
+					variant="secondary"
+					size="sm"
+					aria-label="Create project"
+					title="Create project"
+					onclick={createProject}
+					class="new-project-button"
+				>
+					<Plus size={15} aria-hidden="true" />
+				</Button>
+			</div>
+		</div>
+
 		<ChatThread actions={ThreadActions}>
 			{#each messages as message (message.id)}
 				<MessageView
 					{message}
 					onCardSubmit={handleCardSubmit}
+					onAccept={handleAccept}
 					onRefine={handleRefine}
 					onFork={handleFork}
+					{isCardAccepted}
 				/>
 			{/each}
 		</ChatThread>
 	</Sidebar>
 
-	<!-- Canvas (Rail + Artifact) -->
 	<Canvas>
 		{#snippet rail()}
-			<PlanningPanel />
+			<PlanningPanel onHeadChange={handleHeadChange} />
 		{/snippet}
 
 		{#if refiningCard}
@@ -486,13 +608,110 @@
 				onApply={handleRefineApply}
 			/>
 		{:else}
-			<!-- Show the head of the rail if available -->
-			{#if $decisions.length > 0}
-				{@const head = $decisions[$decisions.length - 1]}
-				<InspectArtifactCard card={head.cardSnapshot} />
-			{:else}
-				<InspectArtifactCard card={null} />
-			{/if}
+			<InspectArtifactCard artifact={activeArtifact} />
 		{/if}
 	</Canvas>
 </div>
+
+<style>
+	.app-shell {
+		color-scheme: light;
+		display: grid;
+		height: 100vh;
+		grid-template-columns: minmax(0, 1fr);
+		overflow: hidden;
+		background: linear-gradient(
+			180deg,
+			color-mix(in srgb, var(--color-surface-50, white) 98%, var(--color-primary-500, #2563eb) 2%),
+			var(--color-surface-100, #f4f4f5)
+		);
+		color: var(--color-surface-900);
+	}
+
+	.workspace-brand {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1rem;
+		padding-bottom: 0.85rem;
+		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
+	}
+
+	.workspace-brand > div:first-child {
+		min-width: 0;
+	}
+
+	.workspace-brand p {
+		margin: 0;
+		font-size: 0.98rem;
+		font-weight: 700;
+		letter-spacing: 0;
+		color: var(--color-surface-900);
+	}
+
+	.workspace-brand span {
+		flex-shrink: 0;
+		font-size: 0.72rem;
+		font-weight: 650;
+		color: color-mix(
+			in srgb,
+			var(--color-surface-500, #71717a) 86%,
+			var(--color-primary-500, #2563eb)
+		);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	.project-controls {
+		display: flex;
+		min-width: 0;
+		align-items: center;
+		gap: 0.4rem;
+	}
+
+	.project-controls label {
+		min-width: 0;
+	}
+
+	.project-controls select {
+		max-width: 11rem;
+		border: 1px solid color-mix(in srgb, var(--color-surface-300, #d4d4d8) 72%, transparent);
+		border-radius: 999px;
+		background-color: color-mix(in srgb, var(--color-surface-50, white) 92%, transparent);
+		padding: 0.34rem 1.85rem 0.34rem 0.7rem;
+		color: var(--color-surface-900);
+		font-size: 0.72rem;
+		font-weight: 650;
+	}
+
+	:global(.new-project-button) {
+		width: 2rem;
+		height: 2rem;
+		flex-shrink: 0;
+		padding: 0 !important;
+	}
+
+	.composer-row {
+		display: flex;
+		align-items: end;
+		gap: 0.55rem;
+	}
+
+	:global(.send-button) {
+		margin-bottom: 0.1rem;
+		display: flex;
+		height: 2rem;
+		width: 2rem;
+		flex-shrink: 0;
+		align-items: center;
+		justify-content: center;
+		padding: 0 !important;
+	}
+
+	@media (min-width: 1024px) {
+		.app-shell {
+			grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+		}
+	}
+</style>

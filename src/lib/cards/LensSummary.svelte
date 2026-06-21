@@ -25,7 +25,7 @@
 			return { sections: [], callsToAction: [] };
 		}
 
-		const raw = payload as Record<string, unknown>;
+		const raw = payload as unknown as Record<string, unknown>;
 
 		const sections = Array.isArray(raw.sections)
 			? raw.sections

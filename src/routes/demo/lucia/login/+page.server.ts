@@ -3,7 +3,7 @@ import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import * as auth from '$lib/server/auth';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -21,16 +21,16 @@ export const actions: Actions = {
 		const password = formData.get('password');
 
 		if (!validateUsername(username)) {
-			return fail(400, { message: 'Invalid username (min 3, max 31 characters, alphanumeric only)' });
+			return fail(400, {
+				message: 'Invalid username (min 3, max 31 characters, alphanumeric only)'
+			});
 		}
 		if (!validatePassword(password)) {
 			return fail(400, { message: 'Invalid password (min 6, max 255 characters)' });
 		}
 
-		const results = await db
-			.select()
-			.from(table.user)
-			.where(eq(table.user.username, username));
+		const db = getDb();
+		const results = await db.select().from(table.user).where(eq(table.user.username, username));
 
 		const existingUser = results.at(0);
 		if (!existingUser) {
@@ -41,7 +41,7 @@ export const actions: Actions = {
 			memoryCost: 19456,
 			timeCost: 2,
 			outputLen: 32,
-			parallelism: 1,
+			parallelism: 1
 		});
 		if (!validPassword) {
 			return fail(400, { message: 'Incorrect username or password' });
@@ -66,12 +66,13 @@ export const actions: Actions = {
 		}
 
 		const userId = generateUserId();
+		const db = getDb();
 		const passwordHash = await hash(password, {
 			// recommended minimum parameters
 			memoryCost: 19456,
 			timeCost: 2,
 			outputLen: 32,
-			parallelism: 1,
+			parallelism: 1
 		});
 
 		try {
@@ -84,7 +85,7 @@ export const actions: Actions = {
 			return fail(500, { message: 'An error has occurred' });
 		}
 		return redirect(302, '/demo/lucia');
-	},
+	}
 };
 
 function generateUserId() {
@@ -104,9 +105,5 @@ function validateUsername(username: unknown): username is string {
 }
 
 function validatePassword(password: unknown): password is string {
-	return (
-		typeof password === 'string' &&
-		password.length >= 6 &&
-		password.length <= 255
-	);
+	return typeof password === 'string' && password.length >= 6 && password.length <= 255;
 }

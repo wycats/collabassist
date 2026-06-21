@@ -13,7 +13,7 @@
 
 	let { message, onSubmit, onRefine, onFork }: Props = $props();
 
-	const card = message.spec;
+	let card = $derived(message.spec);
 
 	function chooseOption(option: CardOption) {
 		if (!onSubmit) return;
@@ -21,15 +21,6 @@
 	}
 </script>
 
-<CardShell
-	title={card.title}
-	description={card.description}
-	onRefine={onRefine}
-	onFork={onFork}
->
-	<CardOptionList
-		options={card.options}
-		onSelect={chooseOption}
-		showToken
-	/>
+<CardShell title={card.title} description={card.description} {onRefine} {onFork}>
+	<CardOptionList options={card.options} onSelect={chooseOption} showToken />
 </CardShell>

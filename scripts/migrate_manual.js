@@ -1,6 +1,13 @@
 import Database from 'better-sqlite3';
 
-const db = new Database('local.db');
+const databaseUrl = process.env.DATABASE_URL ?? 'local.db';
+const databasePath = databaseUrl.startsWith('sqlite://')
+	? databaseUrl.slice('sqlite://'.length)
+	: databaseUrl.startsWith('sqlite:')
+		? databaseUrl.slice('sqlite:'.length)
+		: databaseUrl;
+
+const db = new Database(databasePath);
 
 const sql = `
 CREATE TABLE IF NOT EXISTS decisions (
@@ -14,8 +21,8 @@ CREATE TABLE IF NOT EXISTS decisions (
 `;
 
 try {
-    db.exec(sql);
-    console.log('Successfully created decisions table.');
+	db.exec(sql);
+	console.log('Successfully created decisions table.');
 } catch (error) {
-    console.error('Error creating table:', error);
+	console.error('Error creating table:', error);
 }

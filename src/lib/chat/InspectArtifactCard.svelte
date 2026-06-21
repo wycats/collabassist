@@ -1,82 +1,209 @@
 <script lang="ts">
 	import LensSummary from '$lib/cards/LensSummary.svelte';
 	import MockupRegions from '$lib/cards/MockupRegions.svelte';
-	import type { AnyCard } from '$lib/cards/types';
+	import type { ProductSpecArtifact } from '$lib/domain/artifact';
 
-	let { card }: { card?: AnyCard | null } = $props();
+	let { artifact }: { artifact?: ProductSpecArtifact | null } = $props();
 </script>
 
-{#if card}
-	<section
-		class="variant-soft-surface card border border-surface-200-800/70 shadow-sm"
-		aria-live="polite"
-	>
-		<div
-			class="flex items-center justify-between gap-2 border-b border-surface-200-800/50 px-4 py-3"
-		>
-			<div class="flex flex-col">
-				<span class="text-surface-500-300 text-[11px] tracking-wide uppercase">Artifact</span>
-				<h3 class="text-sm font-semibold text-surface-900-100">Inspect artifact</h3>
+{#if artifact}
+	<section aria-live="polite">
+		<header>
+			<div>
+				<span>Artifact</span>
+				<h3>{artifact.title}</h3>
 			</div>
-			<span class="badge">{card.kind}</span>
-		</div>
+			<span class="badge">{artifact.type}</span>
+		</header>
 
-		<div class="space-y-3 px-4 py-4 text-sm">
-			<p class="text-surface-900-50 font-medium">{card.title}</p>
-			{#if card.description}
-				<p class="text-surface-600-200 text-xs">{card.description}</p>
+		<div class="artifact-body">
+			<p>{artifact.data.brief.title}</p>
+			<p>{artifact.data.brief.summary}</p>
+
+			<div class="brief-grid">
+				<div>
+					<span>Intent</span>
+					<p>{artifact.data.brief.intent ?? 'Not accepted yet'}</p>
+				</div>
+				<div>
+					<span>Path</span>
+					<p>{artifact.data.brief.path ?? 'Not accepted yet'}</p>
+				</div>
+			</div>
+
+			{#if artifact.data.brief.acceptedDecisions.length > 0}
+				<div class="artifact-stack">
+					<h4>Accepted decisions</h4>
+					<ul>
+						{#each artifact.data.brief.acceptedDecisions as decision, index (`${index}:${decision}`)}
+							<li>{decision}</li>
+						{/each}
+					</ul>
+				</div>
 			{/if}
 
-			{#if card.kind === 'mockup'}
+			{#if artifact.data.inspectCard.kind === 'mockup'}
 				<div class="artifact-stack">
-					<MockupRegions regions={card.regions} />
+					<h4>{artifact.data.inspectCard.title}</h4>
+					<MockupRegions regions={artifact.data.inspectCard.regions} />
 					<details>
 						<summary>View JSON</summary>
-						<pre>{JSON.stringify(card.regions, null, 2)}</pre>
+						<pre>{JSON.stringify(artifact.data, null, 2)}</pre>
 					</details>
 				</div>
-			{:else if card.kind === 'lens'}
+			{:else if artifact.data.inspectCard.kind === 'lens'}
 				<div class="artifact-stack">
-					<LensSummary lensType={card.lensType} payload={card.payload} />
+					<h4>{artifact.data.inspectCard.title}</h4>
+					<LensSummary
+						lensType={artifact.data.inspectCard.lensType}
+						payload={artifact.data.inspectCard.payload}
+					/>
 					<details>
 						<summary>View JSON</summary>
-						<pre>{JSON.stringify(card.payload, null, 2)}</pre>
+						<pre>{JSON.stringify(artifact.data, null, 2)}</pre>
 					</details>
 				</div>
 			{/if}
 		</div>
 	</section>
 {:else}
-	<section
-		class="variant-soft-surface bg-surface-50-900/10 text-surface-500-300 card border border-dashed border-surface-200-800/60 text-center text-sm"
-	>
-		<div class="px-4 py-8">
-			<p class="text-[11px] tracking-wide uppercase">Inspect artifact</p>
-			<p class="mt-1 text-sm font-medium">None pinned yet</p>
-			<p class="mt-1 text-xs">Choose a proposal to generate an inspect artifact.</p>
+	<section class="empty">
+		<div>
+			<p>Inspect artifact</p>
+			<p>None pinned yet</p>
+			<p>Accept a mockup or lens card to pin a product spec artifact.</p>
 		</div>
 	</section>
 {/if}
 
 <style>
-	.badge {
-		border-radius: 999px;
-		padding: 0.15rem 0.8rem;
-		font-size: 0.65rem;
-		text-transform: uppercase;
-		letter-spacing: 0.14em;
-		background: color-mix(in srgb, var(--color-surface-900, oklch(0.25 0 0)) 12%, transparent);
+	section {
+		overflow: hidden;
+		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 82%, transparent);
+		border-radius: 0.95rem;
+		background: color-mix(in srgb, var(--color-surface-50, white) 94%, transparent);
+		box-shadow:
+			0 1px 2px hsl(220 18% 14% / 0.04),
+			0 18px 48px hsl(220 24% 14% / 0.08);
+	}
+
+	header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
+		padding: 0.95rem 1rem;
+	}
+
+	header span:first-child,
+	.empty div p:first-child {
+		display: block;
+		font-size: 0.68rem;
+		font-weight: 700;
 		color: color-mix(
 			in srgb,
-			var(--color-surface-50, oklch(0.99 0 0)) 85%,
-			var(--color-surface-200, oklch(0.81 0 0))
+			var(--color-surface-500, #71717a) 84%,
+			var(--color-surface-900, #18181b)
 		);
+		text-transform: uppercase;
+		letter-spacing: 0.09em;
+	}
+
+	h3 {
+		margin: 0.1rem 0 0;
+		font-size: 0.92rem;
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--color-surface-900);
+	}
+
+	.badge {
+		border-radius: 999px;
+		padding: 0.18rem 0.7rem;
+		font-size: 0.65rem;
+		font-weight: 750;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		background: color-mix(
+			in srgb,
+			var(--color-primary-500, #2563eb) 10%,
+			var(--color-surface-50, white)
+		);
+		color: color-mix(in srgb, var(--color-primary-500, #2563eb) 82%, var(--color-surface-900));
+	}
+
+	.artifact-body {
+		padding: 1rem;
+		font-size: 0.9rem;
+	}
+
+	.artifact-body > p:first-child {
+		margin: 0;
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1.3;
+		color: var(--color-surface-900);
+	}
+
+	.artifact-body > p + p {
+		margin: 0.35rem 0 0;
+		color: var(--color-surface-600, #52525b);
+		font-size: 0.84rem;
+		line-height: 1.45;
 	}
 
 	.artifact-stack {
 		display: flex;
 		flex-direction: column;
 		gap: 0.4rem;
+		margin-top: 1rem;
+	}
+
+	.brief-grid {
+		display: grid;
+		gap: 0.55rem;
+		margin-top: 0.9rem;
+	}
+
+	.brief-grid > div {
+		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 70%, transparent);
+		border-radius: 0.65rem;
+		background: color-mix(in srgb, var(--color-surface-100, #f4f4f5) 55%, transparent);
+		padding: 0.7rem;
+	}
+
+	.brief-grid span {
+		display: block;
+		font-size: 0.65rem;
+		font-weight: 750;
+		color: var(--color-surface-500, #71717a);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+	}
+
+	.brief-grid p {
+		margin: 0.25rem 0 0;
+		color: var(--color-surface-900);
+		font-size: 0.8rem;
+		line-height: 1.4;
+	}
+
+	h4 {
+		margin: 0;
+		font-size: 0.78rem;
+		font-weight: 750;
+		color: var(--color-surface-900);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	ul {
+		margin: 0;
+		padding-left: 1rem;
+		color: var(--color-surface-600, #52525b);
+		font-size: 0.8rem;
+		line-height: 1.45;
 	}
 
 	.artifact-stack details {
@@ -93,6 +220,7 @@
 		text-transform: uppercase;
 		letter-spacing: 0.12em;
 		font-size: 0.7rem;
+		font-weight: 700;
 	}
 
 	.artifact-stack pre {
@@ -104,5 +232,35 @@
 		background: color-mix(in srgb, var(--color-surface-100, oklch(0.91 0 0)) 70%, transparent);
 		font-size: 0.75rem;
 		line-height: 1.3;
+	}
+
+	.empty {
+		display: grid;
+		min-height: 18rem;
+		place-items: center;
+		border-style: dashed;
+		background: color-mix(in srgb, var(--color-surface-50, white) 56%, transparent);
+		color: var(--color-surface-500, #71717a);
+		text-align: center;
+	}
+
+	.empty div {
+		padding: 2rem;
+	}
+
+	.empty div p {
+		margin: 0;
+	}
+
+	.empty div p:nth-child(2) {
+		margin-top: 0.35rem;
+		font-size: 1rem;
+		font-weight: 700;
+		color: var(--color-surface-900);
+	}
+
+	.empty div p:nth-child(3) {
+		margin-top: 0.25rem;
+		font-size: 0.84rem;
 	}
 </style>

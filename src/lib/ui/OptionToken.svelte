@@ -7,7 +7,7 @@
 		class?: string;
 	}>();
 
-	const size = props.size ?? 'md';
+	let size = $derived(props.size ?? 'md');
 </script>
 
 <span class={`option-token ${props.class ?? ''}`} data-size={size} aria-hidden="true">
@@ -27,11 +27,6 @@
 			var(--color-surface-700, oklch(0.4 0 0)) 70%,
 			var(--color-surface-900, oklch(0.25 0 0))
 		);
-	}
-
-	.option-token[data-size='sm'],
-	.option-token[data-size='md'] {
-		/* Tokens are inline; size variants reserved for future differences. */
 	}
 
 	.dot {

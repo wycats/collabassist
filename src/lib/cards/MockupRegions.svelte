@@ -139,9 +139,13 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.4rem;
-		padding: 0.5rem;
+		padding: 0.6rem;
 		border-radius: 0.75rem;
-		background: color-mix(in srgb, var(--color-surface-50, oklch(0.99 0 0)) 90%, transparent);
+		background: color-mix(
+			in srgb,
+			var(--color-surface-100, oklch(0.96 0 0)) 58%,
+			var(--color-surface-50, white)
+		);
 		border: 1px solid color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 60%, transparent);
 	}
 
@@ -173,12 +177,13 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		border-radius: 0.6rem;
+		border-radius: 0.5rem;
 		width: 100%;
 		font-weight: 600;
 		font-size: 0.9rem;
-		background: color-mix(in srgb, var(--accent) 40%, var(--color-surface-50, oklch(0.99 0 0)));
+		background: color-mix(in srgb, var(--accent) 46%, var(--color-surface-50, oklch(0.99 0 0)));
 		border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
+		color: color-mix(in srgb, var(--color-surface-900, #18181b) 74%, var(--accent));
 	}
 
 	.region[data-region-role='sidebar'] {
@@ -190,17 +195,29 @@
 	}
 
 	.region[data-layout='shelf'] {
-		--accent: var(--color-surface-200, oklch(0.81 0 0));
+		--accent: color-mix(
+			in srgb,
+			var(--color-primary-500, #2563eb) 18%,
+			var(--color-surface-200, #e4e4e7)
+		);
 		height: 0.9rem;
 	}
 
 	.region[data-layout='bookcase'] {
-		--accent: var(--color-surface-200, oklch(0.81 0 0));
+		--accent: color-mix(
+			in srgb,
+			var(--color-surface-500, #71717a) 18%,
+			var(--color-surface-200, #e4e4e7)
+		);
 		height: 1.6rem;
 	}
 
 	.region[data-layout='library'] {
-		--accent: var(--color-surface-200, oklch(0.81 0 0));
+		--accent: color-mix(
+			in srgb,
+			var(--color-success-500, #16a34a) 16%,
+			var(--color-surface-200, #e4e4e7)
+		);
 		height: 2.4rem;
 	}
 
@@ -220,17 +237,18 @@
 		width: 1.5rem;
 		height: 1.5rem;
 		border-radius: 0.4rem;
-		background: color-mix(in srgb, var(--color-surface-900, oklch(0.25 0 0)) 10%, transparent);
+		background: color-mix(
+			in srgb,
+			var(--color-primary-500, #2563eb) 12%,
+			var(--color-surface-100, #f4f4f5)
+		);
+		border: 1px solid color-mix(in srgb, var(--color-primary-500, #2563eb) 18%, transparent);
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		font-weight: 600;
 		font-size: 0.8rem;
-		color: color-mix(
-			in srgb,
-			var(--color-surface-50, oklch(0.99 0 0)) 85%,
-			var(--color-surface-200, oklch(0.81 0 0))
-		);
+		color: color-mix(in srgb, var(--color-primary-500, #2563eb) 82%, var(--color-surface-900));
 	}
 
 	.legend p {

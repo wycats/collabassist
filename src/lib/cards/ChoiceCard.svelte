@@ -71,10 +71,10 @@
 	.choice {
 		width: 100%;
 		text-align: left;
-		border: 1px solid color-mix(in lab, var(--surface-400) 60%, transparent);
+		border: 1px solid color-mix(in lab, var(--color-surface-400) 60%, transparent);
 		border-radius: 0.85rem;
 		padding: 0.75rem 0.9rem;
-		background: color-mix(in lab, var(--surface-50) 80%, transparent);
+		background: color-mix(in lab, var(--color-surface-50) 80%, transparent);
 		transition:
 			border-color 120ms ease,
 			background 120ms ease;
@@ -82,26 +82,26 @@
 	}
 
 	.choice[data-selected='true'] {
-		border-color: var(--primary-500);
-		background: color-mix(in lab, var(--primary-500) 12%, var(--surface-50));
+		border-color: var(--color-primary-500);
+		background: color-mix(in lab, var(--color-primary-500) 12%, var(--color-surface-50));
 	}
 
 	.choice:focus-visible {
-		outline: 2px solid var(--primary-500);
+		outline: 2px solid var(--color-primary-500);
 		outline-offset: 2px;
 	}
 
 	.label {
 		display: block;
 		font-weight: 600;
-		color: var(--surface-900);
+		color: var(--color-surface-900);
 	}
 
 	.description {
 		display: block;
 		margin-top: 0.15rem;
 		font-size: 0.85rem;
-		color: color-mix(in lab, var(--surface-600) 65%, var(--surface-900));
+		color: color-mix(in lab, var(--color-surface-600) 65%, var(--color-surface-900));
 	}
 
 	.actions {

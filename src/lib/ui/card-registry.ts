@@ -5,6 +5,7 @@ import ProposeCard from '$lib/cards/ProposeCard.svelte';
 import SelectionSummaryCard from '$lib/cards/SelectionSummaryCard.svelte';
 import LensCard from '$lib/cards/LensCard.svelte';
 import MockupCard from '$lib/cards/MockupCard.svelte';
+import ErrorCard from '$lib/cards/ErrorCard.svelte';
 
 export const cardRegistry = {
 	choice: ChoiceCard,
@@ -12,5 +13,6 @@ export const cardRegistry = {
 	'ai-propose': ProposeCard,
 	'ai-lens': LensCard,
 	'ai-mockup': MockupCard,
+	'ai-error': ErrorCard,
 	'selection-summary': SelectionSummaryCard
 } as const;

@@ -14,22 +14,70 @@
 	}>();
 </script>
 
-<section class="flex min-h-0 flex-1 flex-col gap-2">
-	<div class="flex items-center justify-between">
-		<h2 class="text-surface-700-200 text-xs font-semibold tracking-wide uppercase">
+<section>
+	<header>
+		<h2>
 			{props.title ?? 'Thread'}
 		</h2>
-		<div class="flex gap-2 text-xs">
+		<div>
 			{@render props.actions?.()}
 		</div>
-	</div>
+	</header>
 
-	<div
-		class="variant-soft-surface h-full max-h-[calc(100vh-220px)] min-h-[280px] overflow-y-auto
-           card border border-surface-200-800/70 shadow-sm"
-	>
-		<div class="px-4 py-3">
+	<div>
+		<div>
 			{@render props.children?.()}
 		</div>
 	</div>
 </section>
+
+<style>
+	section {
+		display: flex;
+		min-height: 0;
+		flex: 1;
+		flex-direction: column;
+		gap: 0.65rem;
+	}
+
+	header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	h2 {
+		margin: 0;
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: color-mix(
+			in srgb,
+			var(--color-surface-600, #52525b) 78%,
+			var(--color-surface-900, #18181b)
+		);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	header > div {
+		display: flex;
+		gap: 0.5rem;
+		font-size: 0.75rem;
+	}
+
+	section > div {
+		height: 100%;
+		max-height: calc(100vh - 230px);
+		min-height: 280px;
+		overflow-y: auto;
+		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 78%, transparent);
+		border-radius: 0.85rem;
+		background: color-mix(in srgb, var(--color-surface-50, white) 78%, transparent);
+		box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.72);
+	}
+
+	section > div > div {
+		padding: 0.9rem;
+	}
+</style>

@@ -63,15 +63,17 @@
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
-		padding: 0.5rem 0.75rem;
+		padding: 0.62rem 0.72rem;
 		border-radius: 0.5rem;
 		border: 1px solid color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 60%, transparent);
-		background: color-mix(in srgb, var(--color-surface-50, oklch(0.99 0 0)) 85%, transparent);
+		background: color-mix(in srgb, var(--color-surface-50, oklch(0.99 0 0)) 92%, transparent);
 		cursor: pointer;
 		transition:
 			border-color 120ms ease,
-			background 120ms ease;
-		font-family: inherit; /* Ensure button inherits font */
+			background 120ms ease,
+			box-shadow 120ms ease,
+			transform 120ms ease;
+		font-family: inherit;
 	}
 
 	button:hover,
@@ -82,6 +84,8 @@
 			var(--color-primary-500, oklch(0.57 0.21 258.29)) 8%,
 			var(--color-surface-50, oklch(0.99 0 0))
 		);
+		box-shadow: 0 6px 16px hsl(220 22% 14% / 0.06);
+		transform: translateY(-1px);
 		outline: none;
 	}
 
@@ -103,11 +107,13 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.15rem;
+		min-width: 0;
 	}
 
 	strong {
-		font-weight: 500;
+		font-weight: 650;
 		color: inherit;
+		line-height: 1.2;
 	}
 
 	small {
