@@ -18,6 +18,7 @@
 <style>
 	aside {
 		display: flex;
+		min-height: 0;
 		min-width: 0;
 		flex-direction: column;
 		border-right: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 88%, transparent);
@@ -31,18 +32,21 @@
 	aside > div {
 		min-height: 0;
 		overflow-y: visible;
-		padding: 1rem;
+		padding: 0.9rem;
 	}
 
 	footer {
+		flex-shrink: 0;
 		border-top: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 82%, transparent);
 		background: color-mix(in srgb, var(--color-surface-50, white) 82%, transparent);
-		padding: 0 1rem 1rem;
+		padding: 0 0.9rem 0.9rem;
 	}
 
 	@media (min-width: 768px) {
 		aside {
-			height: 100%;
+			height: 100dvh;
+			max-height: 100dvh;
+			overflow: hidden;
 		}
 
 		aside > div {

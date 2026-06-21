@@ -11,7 +11,6 @@
 	const props = $props<{
 		options: CardOption[];
 		onSelect?: (option: CardOption) => void;
-		// Optional: show a small token (shape+color) before each label.
 		showToken?: boolean;
 		selectedId?: string;
 	}>();
@@ -54,26 +53,25 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: 0.42rem;
 	}
 
 	button {
-		width: 100%;
-		text-align: left;
 		display: flex;
 		align-items: center;
-		gap: 0.75rem;
-		padding: 0.62rem 0.72rem;
-		border-radius: 0.5rem;
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 60%, transparent);
-		background: color-mix(in srgb, var(--color-surface-50, oklch(0.99 0 0)) 92%, transparent);
+		width: 100%;
+		gap: 0.55rem;
+		border: 1px solid color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 52%, transparent);
+		border-radius: 0.48rem;
+		background: color-mix(in srgb, var(--color-surface-50, oklch(0.99 0 0)) 96%, transparent);
+		padding: 0.54rem 0.62rem;
 		cursor: pointer;
+		font-family: inherit;
+		text-align: left;
 		transition:
 			border-color 120ms ease,
 			background 120ms ease,
-			box-shadow 120ms ease,
-			transform 120ms ease;
-		font-family: inherit;
+			box-shadow 120ms ease;
 	}
 
 	button:hover,
@@ -84,8 +82,7 @@
 			var(--color-primary-500, oklch(0.57 0.21 258.29)) 8%,
 			var(--color-surface-50, oklch(0.99 0 0))
 		);
-		box-shadow: 0 6px 16px hsl(220 22% 14% / 0.06);
-		transform: translateY(-1px);
+		box-shadow: 0 4px 12px hsl(220 22% 14% / 0.04);
 		outline: none;
 	}
 
@@ -99,8 +96,10 @@
 	}
 
 	.token-wrapper {
+		display: flex;
 		flex-shrink: 0;
-		display: flex; /* Ensure token is centered if needed */
+		align-self: flex-start;
+		padding-top: 0.02rem;
 	}
 
 	button > span {
@@ -111,13 +110,15 @@
 	}
 
 	strong {
+		font-size: 0.86rem;
 		font-weight: 650;
-		color: inherit;
 		line-height: 1.2;
+		color: inherit;
 	}
 
 	small {
-		font-size: 0.85rem;
+		font-size: 0.78rem;
+		line-height: 1.36;
 		color: color-mix(
 			in lab,
 			var(--color-surface-600, oklch(0.45 0 0)) 65%,

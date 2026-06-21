@@ -11,7 +11,6 @@
 </script>
 
 <span class={`option-token ${props.class ?? ''}`} data-size={size} aria-hidden="true">
-	<span class="dot"></span>
 	<span class="code">{props.token.code}</span>
 </span>
 
@@ -20,24 +19,33 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		gap: 0.25rem;
-		font-size: 0.7rem;
+		width: 1.45rem;
+		height: 1.45rem;
+		border: 1px solid
+			color-mix(in srgb, var(--color-primary-500, oklch(0.57 0.21 258.29)) 16%, transparent);
+		border-radius: 0.38rem;
+		background: color-mix(
+			in srgb,
+			var(--color-primary-500, oklch(0.57 0.21 258.29)) 12%,
+			var(--color-surface-50, oklch(0.99 0 0))
+		);
+		font-size: 0.72rem;
 		color: color-mix(
-			in lab,
-			var(--color-surface-700, oklch(0.4 0 0)) 70%,
+			in srgb,
+			var(--color-primary-500, oklch(0.57 0.21 258.29)) 82%,
 			var(--color-surface-900, oklch(0.25 0 0))
 		);
 	}
 
-	.dot {
-		width: 0.4rem;
-		height: 0.4rem;
-		border-radius: 999px;
-		background: var(--color-surface-700, oklch(0.4 0 0));
+	.option-token[data-size='sm'] {
+		width: 1.25rem;
+		height: 1.25rem;
+		border-radius: 0.32rem;
+		font-size: 0.68rem;
 	}
 
 	.code {
-		font-weight: 600;
-		letter-spacing: 0.04em;
+		font-weight: 700;
+		line-height: 1;
 	}
 </style>

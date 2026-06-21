@@ -36,14 +36,14 @@
 		display: flex;
 		min-height: 0;
 		flex-direction: column;
-		gap: 0.65rem;
+		gap: 0.55rem;
 	}
 
 	header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 1rem;
+		gap: 0.8rem;
 	}
 
 	h2 {
@@ -66,16 +66,16 @@
 	}
 
 	section > div {
-		min-height: 10rem;
+		min-height: 8.5rem;
 		overflow-y: visible;
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 78%, transparent);
-		border-radius: 0.85rem;
-		background: color-mix(in srgb, var(--color-surface-50, white) 78%, transparent);
+		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 70%, transparent);
+		border-radius: 0.78rem;
+		background: color-mix(in srgb, var(--color-surface-50, white) 84%, transparent);
 		box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.72);
 	}
 
 	section > div > div {
-		padding: 0.9rem;
+		padding: 0.75rem;
 	}
 
 	@media (min-width: 768px) {
@@ -84,9 +84,8 @@
 		}
 
 		section > div {
-			height: 100%;
 			max-height: calc(100dvh - 230px);
-			min-height: 280px;
+			min-height: clamp(11.5rem, 30vh, 16rem);
 			overflow-y: auto;
 		}
 	}

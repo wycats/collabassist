@@ -69,17 +69,17 @@
 <style>
 	section {
 		overflow: hidden;
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 82%, transparent);
-		border-radius: 0.85rem;
-		background: color-mix(in srgb, var(--color-surface-50, white) 92%, transparent);
+		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
+		border-radius: 0.78rem;
+		background: color-mix(in srgb, var(--color-surface-50, white) 95%, transparent);
 		box-shadow:
 			0 1px 2px hsl(220 18% 14% / 0.04),
-			0 14px 32px hsl(220 24% 14% / 0.06);
+			0 8px 20px hsl(220 24% 14% / 0.045);
 	}
 
 	header {
 		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 70%, transparent);
-		padding: 0.85rem 1rem;
+		padding: 0.7rem 0.85rem;
 	}
 
 	header > div {
@@ -104,7 +104,7 @@
 
 	h3 {
 		margin: 0.1rem 0 0;
-		font-size: 0.92rem;
+		font-size: 0.86rem;
 		font-weight: 700;
 		line-height: 1.2;
 		color: var(--color-surface-900);
@@ -120,7 +120,7 @@
 	}
 
 	.rail-body {
-		padding: 1rem;
+		padding: 0.82rem 0.85rem;
 		font-size: 0.86rem;
 	}
 
@@ -135,14 +135,14 @@
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: 0.85rem;
+		gap: 0.72rem;
 	}
 
 	.rail-body > div > div {
 		position: absolute;
-		top: 0.55rem;
-		bottom: 0.55rem;
-		left: 0.45rem;
+		top: 0.48rem;
+		bottom: 0.48rem;
+		left: 0.36rem;
 		width: 1px;
 		background: color-mix(in srgb, var(--color-surface-300, #d4d4d8) 82%, transparent);
 	}
@@ -152,15 +152,15 @@
 		z-index: 1;
 		display: flex;
 		align-items: flex-start;
-		gap: 0.72rem;
+		gap: 0.58rem;
 	}
 
 	article > div:first-child {
-		margin-top: 0.2rem;
-		width: 0.9rem;
-		height: 0.9rem;
+		margin-top: 0.18rem;
+		width: 0.72rem;
+		height: 0.72rem;
 		flex-shrink: 0;
-		border: 2px solid var(--color-surface-50, white);
+		border: 1px solid var(--color-surface-50, white);
 		border-radius: 999px;
 		background: var(--color-primary-500, #2563eb);
 		box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary-500, #2563eb) 45%, transparent);
@@ -168,8 +168,8 @@
 
 	article p {
 		margin: 0;
-		font-size: 0.78rem;
-		line-height: 1.32;
+		font-size: 0.75rem;
+		line-height: 1.3;
 	}
 
 	article p:first-child {
@@ -178,14 +178,14 @@
 	}
 
 	article p + p {
-		margin-top: 0.16rem;
+		margin-top: 0.12rem;
 		color: var(--color-surface-500, #71717a);
 	}
 
 	time {
 		display: block;
-		margin-top: 0.26rem;
-		font-size: 0.66rem;
+		margin-top: 0.22rem;
+		font-size: 0.63rem;
 		font-weight: 700;
 		color: var(--color-surface-400, #a1a1aa);
 		text-transform: uppercase;
@@ -194,51 +194,50 @@
 
 	@media (min-width: 900px) {
 		.rail-body {
-			padding: 1rem 1rem 0.9rem;
+			padding: 0.78rem 0.85rem 0.85rem;
 		}
 
 		.rail-body > div {
-			flex-direction: row;
-			gap: 1rem;
-			overflow-x: auto;
-			padding: 0.1rem 0.15rem 0.25rem;
-			scrollbar-color: color-mix(in srgb, var(--color-surface-400, #a1a1aa) 52%, transparent)
-				transparent;
-			scrollbar-width: thin;
-		}
-
-		.rail-body > div::-webkit-scrollbar {
-			height: 0.45rem;
-		}
-
-		.rail-body > div::-webkit-scrollbar-track {
-			background: transparent;
-		}
-
-		.rail-body > div::-webkit-scrollbar-thumb {
-			border-radius: 999px;
-			background: color-mix(in srgb, var(--color-surface-400, #a1a1aa) 42%, transparent);
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(8.25rem, 1fr));
+			gap: 0.72rem;
+			overflow: visible;
+			padding: 0;
 		}
 
 		.rail-body > div > div {
-			top: 0.65rem;
-			right: 1rem;
-			bottom: auto;
-			left: 0.55rem;
-			width: auto;
-			height: 1px;
+			display: none;
 		}
 
 		article {
-			min-width: 10rem;
-			max-width: 13rem;
-			flex-direction: column;
-			gap: 0.48rem;
-			padding-right: 0.5rem;
+			display: grid;
+			min-width: 0;
+			max-width: none;
+			grid-template-columns: auto minmax(0, 1fr);
+			gap: 0.42rem;
+			padding: 0.05rem 0;
 		}
 
 		article > div:first-child {
-			margin-top: 0;
+			margin-top: 0.18rem;
+		}
+
+		article > div:last-child {
+			min-width: 0;
+		}
+
+		article p:first-child {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		article p + p {
+			display: -webkit-box;
+			overflow: hidden;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 2;
+			line-clamp: 2;
 		}
 	}
 </style>

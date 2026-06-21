@@ -633,9 +633,9 @@
 		flex-wrap: wrap;
 		align-items: flex-start;
 		justify-content: space-between;
-		gap: 1rem;
-		margin-bottom: 1rem;
-		padding-bottom: 0.85rem;
+		gap: 0.75rem;
+		margin-bottom: 0.82rem;
+		padding-bottom: 0.75rem;
 		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
 	}
 
@@ -668,8 +668,9 @@
 		display: flex;
 		min-width: 0;
 		align-items: center;
-		gap: 0.4rem;
+		gap: 0.42rem;
 		justify-content: flex-end;
+		margin-left: auto;
 	}
 
 	.project-controls label {
@@ -681,7 +682,7 @@
 		border: 1px solid color-mix(in srgb, var(--color-surface-300, #d4d4d8) 72%, transparent);
 		border-radius: 999px;
 		background-color: color-mix(in srgb, var(--color-surface-50, white) 92%, transparent);
-		padding: 0.34rem 1.85rem 0.34rem 0.7rem;
+		padding: 0.32rem 1.85rem 0.32rem 0.68rem;
 		color: var(--color-surface-900);
 		font-size: 0.72rem;
 		font-weight: 650;
@@ -697,7 +698,7 @@
 	.composer-row {
 		display: flex;
 		align-items: end;
-		gap: 0.55rem;
+		gap: 0.5rem;
 	}
 
 	:global(.send-button) {

@@ -9,10 +9,7 @@
 {#if artifact}
 	<section aria-live="polite">
 		<header>
-			<div>
-				<span>Artifact</span>
-				<h3>{artifact.title}</h3>
-			</div>
+			<span>Artifact</span>
 			<span class="badge">{artifact.type}</span>
 		</header>
 
@@ -79,12 +76,12 @@
 <style>
 	section {
 		overflow: hidden;
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 82%, transparent);
-		border-radius: 0.95rem;
-		background: color-mix(in srgb, var(--color-surface-50, white) 94%, transparent);
+		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
+		border-radius: 0.82rem;
+		background: color-mix(in srgb, var(--color-surface-50, white) 96%, transparent);
 		box-shadow:
 			0 1px 2px hsl(220 18% 14% / 0.04),
-			0 18px 48px hsl(220 24% 14% / 0.08);
+			0 10px 28px hsl(220 24% 14% / 0.05);
 	}
 
 	header {
@@ -93,10 +90,11 @@
 		justify-content: space-between;
 		gap: 1rem;
 		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
-		padding: 0.95rem 1rem;
+		background: color-mix(in srgb, var(--color-surface-50, white) 88%, transparent);
+		padding: 0.7rem 0.85rem;
 	}
 
-	header span:first-child,
+	header > span:first-child,
 	.empty div p:first-child {
 		display: block;
 		font-size: 0.68rem;
@@ -110,18 +108,10 @@
 		letter-spacing: 0.09em;
 	}
 
-	h3 {
-		margin: 0.1rem 0 0;
-		font-size: 0.92rem;
-		font-weight: 700;
-		line-height: 1.2;
-		color: var(--color-surface-900);
-	}
-
 	.badge {
 		border-radius: 999px;
-		padding: 0.18rem 0.7rem;
-		font-size: 0.65rem;
+		padding: 0.16rem 0.62rem;
+		font-size: 0.62rem;
 		font-weight: 750;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
@@ -134,14 +124,14 @@
 	}
 
 	.artifact-body {
-		padding: 1rem;
+		padding: 0.9rem 0.95rem 1rem;
 		font-size: 0.9rem;
 	}
 
 	.artifact-body > p:first-child {
 		margin: 0;
-		font-size: 1rem;
-		font-weight: 700;
+		font-size: 1.06rem;
+		font-weight: 740;
 		line-height: 1.3;
 		color: var(--color-surface-900);
 	}
@@ -150,27 +140,27 @@
 		margin: 0.35rem 0 0;
 		color: var(--color-surface-600, #52525b);
 		font-size: 0.84rem;
-		line-height: 1.45;
+		line-height: 1.42;
 	}
 
 	.artifact-stack {
 		display: flex;
 		flex-direction: column;
-		gap: 0.4rem;
-		margin-top: 1rem;
+		gap: 0.38rem;
+		margin-top: 0.9rem;
 	}
 
 	.brief-grid {
 		display: grid;
-		gap: 0.55rem;
-		margin-top: 0.9rem;
+		gap: 0.5rem;
+		margin-top: 0.82rem;
 	}
 
 	.brief-grid > div {
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 70%, transparent);
-		border-radius: 0.65rem;
-		background: color-mix(in srgb, var(--color-surface-100, #f4f4f5) 55%, transparent);
-		padding: 0.7rem;
+		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 56%, transparent);
+		border-radius: 0.56rem;
+		background: color-mix(in srgb, var(--color-surface-100, #f4f4f5) 32%, transparent);
+		padding: 0.58rem 0.65rem;
 	}
 
 	.brief-grid span {
@@ -183,15 +173,15 @@
 	}
 
 	.brief-grid p {
-		margin: 0.25rem 0 0;
+		margin: 0.2rem 0 0;
 		color: var(--color-surface-900);
-		font-size: 0.8rem;
-		line-height: 1.4;
+		font-size: 0.78rem;
+		line-height: 1.35;
 	}
 
 	h4 {
 		margin: 0;
-		font-size: 0.78rem;
+		font-size: 0.74rem;
 		font-weight: 750;
 		color: var(--color-surface-900);
 		text-transform: uppercase;
@@ -199,11 +189,30 @@
 	}
 
 	ul {
+		display: grid;
+		gap: 0.12rem;
+		list-style: none;
 		margin: 0;
-		padding-left: 1rem;
-		color: var(--color-surface-600, #52525b);
-		font-size: 0.8rem;
-		line-height: 1.45;
+		padding: 0;
+		color: color-mix(in srgb, var(--color-surface-500, #71717a) 82%, var(--color-surface-900));
+		font-size: 0.76rem;
+		line-height: 1.38;
+	}
+
+	li {
+		position: relative;
+		padding-left: 0.75rem;
+	}
+
+	li::before {
+		position: absolute;
+		top: 0.54em;
+		left: 0.1rem;
+		width: 0.24rem;
+		height: 0.24rem;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--color-surface-400, #a1a1aa) 72%, transparent);
+		content: '';
 	}
 
 	.artifact-stack details {
@@ -236,7 +245,7 @@
 
 	.empty {
 		display: grid;
-		min-height: 18rem;
+		min-height: 16rem;
 		place-items: center;
 		border-style: dashed;
 		background: color-mix(in srgb, var(--color-surface-50, white) 56%, transparent);
@@ -245,7 +254,7 @@
 	}
 
 	.empty div {
-		padding: 2rem;
+		padding: 1.5rem;
 	}
 
 	.empty div p {
@@ -262,5 +271,11 @@
 	.empty div p:nth-child(3) {
 		margin-top: 0.25rem;
 		font-size: 0.84rem;
+	}
+
+	@media (min-width: 700px) {
+		.brief-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
 	}
 </style>
