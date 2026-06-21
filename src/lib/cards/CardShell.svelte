@@ -67,12 +67,12 @@
 		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 68%, transparent);
 		border-radius: 0.7rem;
 		background: color-mix(in srgb, var(--color-surface-50, white) 96%, transparent);
-		box-shadow: 0 8px 20px hsl(220 22% 14% / 0.045);
-		padding: 0.82rem;
+		box-shadow: 0 6px 18px hsl(220 22% 14% / 0.04);
+		padding: 0.88rem;
 	}
 
 	section > header {
-		margin-bottom: 0.58rem;
+		margin-bottom: 0.72rem;
 	}
 
 	section > header > div:first-child {
@@ -81,15 +81,15 @@
 
 	section > header h3 {
 		margin: 0;
-		font-size: 0.88rem;
+		font-size: 0.9rem;
 		font-weight: 650;
 		line-height: 1.25;
 		color: var(--color-surface-900);
 	}
 
 	section > header p {
-		margin: 0.28rem 0 0;
-		font-size: 0.78rem;
+		margin: 0.32rem 0 0;
+		font-size: 0.79rem;
 		line-height: 1.42;
 		color: color-mix(in lab, var(--color-surface-600) 60%, var(--color-surface-900));
 	}
@@ -125,6 +125,33 @@
 	section > div {
 		display: flex;
 		flex-direction: column;
-		gap: 0.42rem;
+		gap: 0.48rem;
+	}
+
+	@media (min-width: 768px) {
+		section {
+			border-radius: 0.66rem;
+			padding: 0.72rem;
+		}
+
+		section > header {
+			margin-bottom: 0.58rem;
+		}
+
+		section > header h3 {
+			font-size: 0.86rem;
+		}
+
+		section > header p {
+			margin-top: 0.26rem;
+			font-size: 0.75rem;
+			line-height: 1.34;
+		}
+
+		section > header button {
+			width: 1.5rem;
+			height: 1.5rem;
+			border-radius: 0.48rem;
+		}
 	}
 </style>

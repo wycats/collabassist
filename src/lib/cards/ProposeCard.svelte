@@ -22,5 +22,5 @@
 </script>
 
 <CardShell title={card.title} description={card.description} {onRefine} {onFork}>
-	<CardOptionList options={card.options} onSelect={chooseOption} showToken />
+	<CardOptionList options={card.options} onSelect={chooseOption} />
 </CardShell>
