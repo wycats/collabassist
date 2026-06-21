@@ -18,7 +18,6 @@
 <style>
 	aside {
 		display: flex;
-		height: 100%;
 		min-width: 0;
 		flex-direction: column;
 		border-right: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 88%, transparent);
@@ -40,5 +39,11 @@
 		border-top: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 82%, transparent);
 		background: color-mix(in srgb, var(--color-surface-50, white) 82%, transparent);
 		padding: 0 1rem 1rem;
+	}
+
+	@media (min-width: 1024px) {
+		aside {
+			height: 100%;
+		}
 	}
 </style>

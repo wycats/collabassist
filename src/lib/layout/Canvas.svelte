@@ -16,7 +16,6 @@
 <style>
 	main {
 		display: flex;
-		height: 100%;
 		min-width: 0;
 		flex-direction: column;
 		background: linear-gradient(
@@ -37,5 +36,11 @@
 		flex: 1;
 		overflow-y: auto;
 		padding: clamp(1rem, 2.8vw, 2rem);
+	}
+
+	@media (min-width: 1024px) {
+		main {
+			height: 100%;
+		}
 	}
 </style>

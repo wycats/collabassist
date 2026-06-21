@@ -617,9 +617,9 @@
 	.app-shell {
 		color-scheme: light;
 		display: grid;
-		height: 100vh;
+		min-height: 100dvh;
 		grid-template-columns: minmax(0, 1fr);
-		overflow: hidden;
+		overflow: visible;
 		background: linear-gradient(
 			180deg,
 			color-mix(in srgb, var(--color-surface-50, white) 98%, var(--color-primary-500, #2563eb) 2%),
@@ -711,7 +711,9 @@
 
 	@media (min-width: 1024px) {
 		.app-shell {
+			height: 100dvh;
 			grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+			overflow: hidden;
 		}
 	}
 </style>
