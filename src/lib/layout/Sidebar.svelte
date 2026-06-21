@@ -30,8 +30,7 @@
 
 	aside > div {
 		min-height: 0;
-		flex: 1;
-		overflow-y: auto;
+		overflow-y: visible;
 		padding: 1rem;
 	}
 
@@ -41,9 +40,14 @@
 		padding: 0 1rem 1rem;
 	}
 
-	@media (min-width: 1024px) {
+	@media (min-width: 768px) {
 		aside {
 			height: 100%;
+		}
+
+		aside > div {
+			flex: 1;
+			overflow-y: auto;
 		}
 	}
 </style>

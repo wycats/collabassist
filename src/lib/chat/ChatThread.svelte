@@ -35,7 +35,6 @@
 	section {
 		display: flex;
 		min-height: 0;
-		flex: 1;
 		flex-direction: column;
 		gap: 0.65rem;
 	}
@@ -67,10 +66,8 @@
 	}
 
 	section > div {
-		height: 100%;
-		max-height: calc(100vh - 230px);
-		min-height: 280px;
-		overflow-y: auto;
+		min-height: 10rem;
+		overflow-y: visible;
 		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 78%, transparent);
 		border-radius: 0.85rem;
 		background: color-mix(in srgb, var(--color-surface-50, white) 78%, transparent);
@@ -79,5 +76,34 @@
 
 	section > div > div {
 		padding: 0.9rem;
+	}
+
+	@media (min-width: 768px) {
+		section {
+			flex: 1;
+		}
+
+		section > div {
+			height: 100%;
+			max-height: calc(100dvh - 230px);
+			min-height: 280px;
+			overflow-y: auto;
+		}
+	}
+
+	@media (min-width: 768px) and (max-width: 900px) {
+		header {
+			align-items: stretch;
+			flex-direction: column;
+			gap: 0.55rem;
+		}
+
+		header > div {
+			width: 100%;
+		}
+
+		header > div :global(button) {
+			width: 100%;
+		}
 	}
 </style>

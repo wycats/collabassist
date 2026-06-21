@@ -630,6 +630,7 @@
 
 	.workspace-brand {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: flex-start;
 		justify-content: space-between;
 		gap: 1rem;
@@ -668,6 +669,7 @@
 		min-width: 0;
 		align-items: center;
 		gap: 0.4rem;
+		justify-content: flex-end;
 	}
 
 	.project-controls label {
@@ -709,11 +711,17 @@
 		padding: 0 !important;
 	}
 
-	@media (min-width: 1024px) {
+	@media (min-width: 768px) {
 		.app-shell {
 			height: 100dvh;
-			grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+			grid-template-columns: minmax(320px, 38vw) minmax(0, 1fr);
 			overflow: hidden;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.app-shell {
+			grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
 		}
 	}
 </style>

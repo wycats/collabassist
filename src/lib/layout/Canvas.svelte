@@ -33,14 +33,18 @@
 
 	main > div {
 		min-height: 0;
-		flex: 1;
-		overflow-y: auto;
+		overflow-y: visible;
 		padding: clamp(1rem, 2.8vw, 2rem);
 	}
 
-	@media (min-width: 1024px) {
+	@media (min-width: 768px) {
 		main {
 			height: 100%;
+		}
+
+		main > div {
+			flex: 1;
+			overflow-y: auto;
 		}
 	}
 </style>
