@@ -63,10 +63,21 @@ export interface MockupCard extends CardBase {
 
 export type LensType = 'entities' | 'flows' | 'screens' | 'permissions';
 
+export interface LensSection {
+	id: string;
+	label: string;
+	contents: string[];
+}
+
+export interface LensPayload {
+	sections: LensSection[];
+	callsToAction: string[];
+}
+
 export interface LensCard extends CardBase {
 	kind: 'lens';
 	lensType: LensType;
-	payload: unknown;
+	payload: LensPayload;
 }
 
 export type ErrorKind = 'missing_info' | 'model_uncertain' | 'invalid_state';

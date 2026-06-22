@@ -11,7 +11,6 @@
 	const props = $props<{
 		options: CardOption[];
 		onSelect?: (option: CardOption) => void;
-		// Optional: show a small token (shape+color) before each label.
 		showToken?: boolean;
 		selectedId?: string;
 	}>();
@@ -49,73 +48,100 @@
 
 <style>
 	ul {
-		list-style: none;
 		margin: 0;
 		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
+		border-block: 1px solid
+			color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 58%, transparent);
+		list-style: none;
+	}
+
+	li + li {
+		border-top: 1px solid
+			color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 52%, transparent);
 	}
 
 	button {
-		width: 100%;
-		text-align: left;
 		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.5rem;
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 60%, transparent);
-		background: color-mix(in srgb, var(--color-surface-50, oklch(0.99 0 0)) 85%, transparent);
+		align-items: flex-start;
+		width: 100%;
+		gap: 0.58rem;
+		border: 0;
+		border-radius: 0.42rem;
+		background: transparent;
+		padding: 0.62rem 0.1rem;
 		cursor: pointer;
+		font-family: inherit;
+		text-align: left;
 		transition:
-			border-color 120ms ease,
-			background 120ms ease;
-		font-family: inherit; /* Ensure button inherits font */
+			background 120ms ease,
+			color 120ms ease;
 	}
 
 	button:hover,
 	button:focus-visible {
-		border-color: var(--color-primary-500, oklch(0.57 0.21 258.29));
+		background: color-mix(
+			in srgb,
+			var(--color-primary-500, oklch(0.57 0.21 258.29)) 6%,
+			var(--color-surface-50, oklch(0.99 0 0))
+		);
+		color: var(--color-surface-900, oklch(0.25 0 0));
+		outline: none;
+	}
+
+	button[data-selected='true'] {
 		background: color-mix(
 			in srgb,
 			var(--color-primary-500, oklch(0.57 0.21 258.29)) 8%,
 			var(--color-surface-50, oklch(0.99 0 0))
 		);
-		outline: none;
-	}
-
-	button[data-selected='true'] {
-		border-color: var(--color-primary-500, oklch(0.57 0.21 258.29));
-		background: color-mix(
-			in srgb,
-			var(--color-primary-500, oklch(0.57 0.21 258.29)) 12%,
-			var(--color-surface-50, oklch(0.99 0 0))
-		);
 	}
 
 	.token-wrapper {
+		display: flex;
 		flex-shrink: 0;
-		display: flex; /* Ensure token is centered if needed */
+		padding-top: 0.05rem;
 	}
 
 	button > span {
 		display: flex;
 		flex-direction: column;
 		gap: 0.15rem;
+		min-width: 0;
 	}
 
 	strong {
-		font-weight: 500;
+		font-size: 0.84rem;
+		font-weight: 650;
+		line-height: 1.2;
 		color: inherit;
 	}
 
 	small {
-		font-size: 0.85rem;
+		font-size: 0.77rem;
+		line-height: 1.34;
 		color: color-mix(
 			in lab,
 			var(--color-surface-600, oklch(0.45 0 0)) 65%,
 			var(--color-surface-900, oklch(0.25 0 0))
 		);
+	}
+
+	@media (min-width: 768px) {
+		button {
+			padding: 0.5rem 0.1rem;
+		}
+
+		button > span {
+			gap: 0.1rem;
+		}
+
+		strong {
+			font-size: 0.81rem;
+		}
+
+		small {
+			font-size: 0.73rem;
+			line-height: 1.3;
+		}
 	}
 </style>

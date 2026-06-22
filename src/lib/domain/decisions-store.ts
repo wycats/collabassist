@@ -1,14 +1,18 @@
-import { writable, derived, get } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import type { AnyCard } from '$lib/cards/types';
 
 export interface DecisionNode {
 	id: string;
+	projectId: string;
 	cardId: string;
 	parentId: string | null;
-	acceptedAt: Date;
+	artifactId: string | null;
+	acceptedAt: string;
 	summary: string | null;
 	cardSnapshot: AnyCard;
 }
+
+type RawDecisionNode = Omit<DecisionNode, 'acceptedAt'> & { acceptedAt: string | Date };
 
 function createDecisionsStore() {
 	const decisions = writable<DecisionNode[]>([]);
@@ -23,6 +27,12 @@ function createDecisionsStore() {
 		return getPath($decisions, $headId);
 	});
 
+	const head = derived([decisions, headId], ([$decisions, $headId]) => {
+		if ($decisions.length === 0) return null;
+		const selectedId = $headId ?? $decisions[$decisions.length - 1].id;
+		return $decisions.find((decision) => decision.id === selectedId) ?? null;
+	});
+
 	const heads = derived(decisions, ($decisions) => {
 		if ($decisions.length === 0) return [];
 		// A head is a node that is not a parent to any other node
@@ -32,16 +42,23 @@ function createDecisionsStore() {
 
 	return {
 		subscribe: decisions.subscribe,
-		set: (nodes: DecisionNode[]) => {
-			decisions.set(nodes);
-			// Auto-set head to the last node if not set
-			if (nodes.length > 0) {
-				headId.set(nodes[nodes.length - 1].id);
+		set: (nodes: RawDecisionNode[], selectedHeadId?: string | null) => {
+			const normalized = nodes.map(normalizeNode);
+			decisions.set(normalized);
+			if (selectedHeadId && normalized.some((node) => node.id === selectedHeadId)) {
+				headId.set(selectedHeadId);
+				return;
 			}
+			if (normalized.length > 0) {
+				headId.set(normalized[normalized.length - 1].id);
+				return;
+			}
+			headId.set(null);
 		},
 		add: (decision: DecisionNode) => {
-			decisions.update((nodes) => [...nodes, decision]);
-			headId.set(decision.id);
+			const normalized = normalizeNode(decision);
+			decisions.update((nodes) => [...nodes, normalized]);
+			headId.set(normalized.id);
 		},
 		reset: () => {
 			decisions.set([]);
@@ -52,6 +69,7 @@ function createDecisionsStore() {
 		},
 		activePath,
 		headId,
+		head,
 		heads
 	};
 }
@@ -66,6 +84,16 @@ function getPath(nodes: DecisionNode[], headId: string): DecisionNode[] {
 		currentId = node.parentId;
 	}
 	return path;
+}
+
+function normalizeNode(node: RawDecisionNode): DecisionNode {
+	return {
+		...node,
+		acceptedAt:
+			node.acceptedAt instanceof Date
+				? node.acceptedAt.toISOString()
+				: new Date(node.acceptedAt).toISOString()
+	};
 }
 
 export const decisions = createDecisionsStore();

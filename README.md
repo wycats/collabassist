@@ -4,6 +4,8 @@ Collabassist is an experimental SvelteKit app for exploring **card‑based AI in
 
 Instead of treating AI as "a text box with a brain behind it", this project treats **structured cards** and **artifacts** as the primary way people collaborate with an assistant. It’s a place to prototype and refine patterns like disambiguation, proposals, lenses, and mockups – all grounded in a typed model and JSON Schema.
 
+For the product-facing vision, see [VISION.md](VISION.md).
+
 The goal is to make it easy to test ideas like those in Vitaly Friedman’s _Beyond Chat: What’s Next for AI Design Patterns_ talk in real, running code.
 
 ---
@@ -81,19 +83,26 @@ These values are meant to be decision filters, especially when the plan doesn’
 
 ## What’s in Here Today
 
-- A basic **chat shell** (`ChatShell`, `ChatThread`, `ChatComposer`).
+- A two-pane **chat + canvas shell** (`Sidebar`, `Canvas`, `ChatThread`, `ChatComposer`).
 - A **message model** (`src/lib/domain/message.ts`) with text and card messages.
 - A **card model** (`src/lib/cards/types.ts`) and matching **JSON Schema** (`src/lib/schema/card.schema.json`).
-- A **card registry** (`src/lib/ui/card-registry.ts`) and the first card components (`Interpret`, `Propose`, `Lens`, `Mockup`, `Error`, and `SelectionSummary` that records user picks inline).
-- A **pinned planning panel** (`PlanningPanel.svelte` backed by `planning-store.ts`) that mirrors the locked interpret/propose decisions and the latest inspect artifact so the plan stays visible even as the chat scrolls.
-- A stubbed `/api/cards` endpoint that already branches by `phase` (`discover` → interpret, `shape` → propose, `inspect` → lens/mockup) so interpret and propose selections trigger automatic follow-up calls.
-- A recursive, quantum-aware mockup layout spec in `docs/ai/mockup-layout-spec.md` implemented by `MockupRegions.svelte`, used consistently in both cards and the planning panel.
-- Design notes and story flows in `docs/ai/` that stay in lockstep with the implementation.
+- A **card registry** (`src/lib/ui/card-registry.ts`) and components for `Interpret`, `Propose`, `Lens`, `Mockup`, `Error`, and `SelectionSummary`.
+- A single-user **project workspace** with a project selector and durable project state in SQLite.
+- A persisted **Decisions Rail** (`PlanningPanel.svelte` backed by `decisions-store.ts` + SQLite) that stores accepted card snapshots with parent IDs for branch paths.
+- Durable `product-spec` **artifacts** created when accepted mockup/lens inspect cards are pinned.
+- A `/api/cards` endpoint backed by a server card-generator adapter:
+  - `CARD_GENERATOR_MODE=fake` for deterministic local loops and tests.
+  - `CARD_GENERATOR_MODE=gateway` for Vercel AI Gateway via AI SDK 6 stable.
+- A resumable product-spec loop: prompt → interpret → commit intent → propose → commit path → inspect → explicitly accept/pin a persisted artifact.
+- A recursive, quantum-aware mockup layout spec in `docs/ai/mockup-layout-spec.md` implemented by `MockupRegions.svelte`.
+- Design notes and story flows in `docs/ai/`, plus live Gateway setup in `docs/ai-gateway-setup.md`.
 
 The next major steps are:
 
-- Replace the stubbed cards with real model-generated cards using `response_format: json_schema`, while keeping the same card/phase UX contract.
-- Fill out the inspect stage with richer mockup cards and artifact hooks, plus add `ErrorCard` + recovery actions before moving on to Slice 4.
+- Exercise live Gateway mode after Vercel login/link/env pull.
+- Sharpen refine/fork semantics into a fuller artifact version and merge model.
+- Keep the Node 26 + pnpm environment verified as dependencies move.
+- Expand from single-user beta toward sharing or team workflows only after the product-spec artifact loop feels strong.
 
 ---
 
@@ -101,10 +110,13 @@ The next major steps are:
 
 ```bash
 pnpm install
+pnpm exec playwright install
 pnpm dev
 ```
 
 Then open the app (by default at `http://localhost:5173/`) and try sending a message on the main page. As we implement the card pipeline, this will evolve from a simple echo chat into the card‑driven AI UX described above.
+
+Use Node 26 as declared in `.prototools`. The default fake mode does not require model credentials. For Vercel AI Gateway setup, see `docs/ai-gateway-setup.md`.
 
 ---
 

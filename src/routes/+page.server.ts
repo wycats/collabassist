@@ -1,17 +1,9 @@
-import { db } from '$lib/server/db';
-import { decisions } from '$lib/server/db/schema';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
-	const allDecisions = await db.select().from(decisions).orderBy(decisions.acceptedAt);
-	
-	// Parse the cardSnapshot JSON
-	const parsedDecisions = allDecisions.map(d => ({
-		...d,
-		cardSnapshot: JSON.parse(d.cardSnapshot)
-	}));
+export const load: PageServerLoad = async ({ url }) => {
+	const { getDb } = await import('$lib/server/db');
+	const { loadWorkspace } = await import('$lib/server/workspace');
+	const db = getDb();
 
-	return {
-		decisions: parsedDecisions
-	};
+	return loadWorkspace(db, url.searchParams.get('projectId'));
 };

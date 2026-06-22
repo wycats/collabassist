@@ -14,22 +14,88 @@
 	}>();
 </script>
 
-<section class="flex min-h-0 flex-1 flex-col gap-2">
-	<div class="flex items-center justify-between">
-		<h2 class="text-surface-700-200 text-xs font-semibold tracking-wide uppercase">
+<section>
+	<header>
+		<h2>
 			{props.title ?? 'Thread'}
 		</h2>
-		<div class="flex gap-2 text-xs">
+		<div>
 			{@render props.actions?.()}
 		</div>
-	</div>
+	</header>
 
-	<div
-		class="variant-soft-surface h-full max-h-[calc(100vh-220px)] min-h-[280px] overflow-y-auto
-           card border border-surface-200-800/70 shadow-sm"
-	>
-		<div class="px-4 py-3">
+	<div>
+		<div>
 			{@render props.children?.()}
 		</div>
 	</div>
 </section>
+
+<style>
+	section {
+		display: flex;
+		min-height: 0;
+		flex-direction: column;
+		gap: 0.55rem;
+	}
+
+	header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.8rem;
+	}
+
+	h2 {
+		margin: 0;
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: color-mix(
+			in srgb,
+			var(--color-surface-600, #52525b) 78%,
+			var(--color-surface-900, #18181b)
+		);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	header > div {
+		display: flex;
+		gap: 0.5rem;
+		font-size: 0.75rem;
+	}
+
+	section > div {
+		overflow-y: visible;
+	}
+
+	section > div > div {
+		padding: 0;
+	}
+
+	@media (min-width: 768px) {
+		section {
+			flex: 1;
+		}
+
+		section > div {
+			overflow-y: visible;
+		}
+	}
+
+	@media (min-width: 768px) and (max-width: 900px) {
+		header {
+			align-items: stretch;
+			flex-direction: column;
+			gap: 0.55rem;
+		}
+
+		header > div {
+			width: 100%;
+		}
+
+		header > div :global(button) {
+			width: 100%;
+		}
+	}
+</style>

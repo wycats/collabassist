@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
 	let {
 		value = $bindable(''),
 		placeholder = 'Type a message...',
@@ -13,54 +11,53 @@
 		onsubmit?: () => void;
 	}>();
 
-	let editor: HTMLElement;
-
-	function handleInput(e: Event) {
-		const target = e.target as HTMLElement;
-		value = target.innerText;
-	}
-
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Enter' && !e.shiftKey) {
-			e.preventDefault();
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault();
 			if (!disabled && value.trim()) {
 				onsubmit?.();
 			}
 		}
 	}
-
-	// Sync value changes from outside (e.g. clearing draft)
-	$effect(() => {
-		if (editor && editor.innerText !== value) {
-			editor.innerText = value;
-		}
-	});
 </script>
 
-<div class="relative flex w-full items-center">
-	{#if !value}
-		<div class="pointer-events-none absolute left-0 top-0 text-surface-400-500 select-none">
-			{placeholder}
-		</div>
-	{/if}
-	
-	<div
-		bind:this={editor}
-		contenteditable={!disabled ? "plaintext-only" : "false"}
-		role="textbox"
-		tabindex="0"
-		class="max-h-60 min-h-[1.5em] w-full resize-none overflow-y-auto bg-transparent outline-none empty:before:content-['\u200b']"
-		oninput={handleInput}
-		onkeydown={handleKeydown}
-	></div>
-</div>
+<textarea
+	bind:value
+	{placeholder}
+	{disabled}
+	rows="1"
+	aria-label={placeholder}
+	onkeydown={handleKeydown}></textarea>
 
 <style>
-	/* Fallback for browsers that don't support plaintext-only */
-	[contenteditable]:empty:before {
-		content: attr(placeholder);
-		color: #9ca3af;
-		pointer-events: none;
-		display: block; /* For Firefox */
+	textarea {
+		field-sizing: content;
+		width: 100%;
+		min-height: 1.5em;
+		max-height: 15rem;
+		resize: none;
+		overflow-y: auto;
+		border: 0;
+		border-color: transparent;
+		padding: 0;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		line-height: 1.5;
+		outline: none;
+		box-shadow: none;
+	}
+
+	textarea:focus,
+	textarea:focus-visible {
+		border-color: transparent;
+		outline: none;
+		box-shadow: none;
+		--tw-ring-color: transparent;
+		--tw-ring-shadow: 0 0 #0000;
+	}
+
+	textarea::placeholder {
+		color: var(--color-surface-400, oklch(0.7 0 0));
 	}
 </style>

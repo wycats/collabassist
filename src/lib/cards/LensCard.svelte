@@ -6,23 +6,18 @@
 
 	type Props = {
 		message: CardMessage<LensCardSpec>;
-		onSubmit?: (detail: Record<string, unknown>) => void;
+		onAccept?: () => void;
 		onRefine?: () => void;
 		onFork?: () => void;
 	};
 
-	let { message, onRefine, onFork }: Props = $props();
+	let { message, onAccept, onRefine, onFork }: Props = $props();
 
-	const card = message.spec;
-	const payloadJson = JSON.stringify(card.payload, null, 2);
+	let card = $derived(message.spec);
+	let payloadJson = $derived(JSON.stringify(card.payload, null, 2));
 </script>
 
-<CardShell
-	title={card.title}
-	description={card.description}
-	onRefine={onRefine}
-	onFork={onFork}
->
+<CardShell title={card.title} description={card.description} {onAccept} {onRefine} {onFork}>
 	<LensSummary lensType={card.lensType} payload={card.payload} />
 	<details>
 		<summary>View JSON</summary>
