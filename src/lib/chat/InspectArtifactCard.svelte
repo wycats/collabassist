@@ -8,11 +8,6 @@
 
 {#if artifact}
 	<section aria-live="polite">
-		<header>
-			<span>Artifact</span>
-			<span class="badge">{artifact.type}</span>
-		</header>
-
 		<div class="artifact-body">
 			<p>{artifact.data.brief.title}</p>
 			<p>{artifact.data.brief.summary}</p>
@@ -75,26 +70,9 @@
 
 <style>
 	section {
-		overflow: hidden;
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
-		border-radius: 0.82rem;
-		background: color-mix(in srgb, var(--color-surface-50, white) 96%, transparent);
-		box-shadow:
-			0 1px 2px hsl(220 18% 14% / 0.04),
-			0 10px 28px hsl(220 24% 14% / 0.05);
+		background: transparent;
 	}
 
-	header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
-		background: color-mix(in srgb, var(--color-surface-50, white) 88%, transparent);
-		padding: 0.7rem 0.85rem;
-	}
-
-	header > span:first-child,
 	.empty div p:first-child {
 		display: block;
 		font-size: 0.68rem;
@@ -108,29 +86,14 @@
 		letter-spacing: 0.09em;
 	}
 
-	.badge {
-		border-radius: 999px;
-		padding: 0.16rem 0.62rem;
-		font-size: 0.62rem;
-		font-weight: 750;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		background: color-mix(
-			in srgb,
-			var(--color-primary-500, #2563eb) 10%,
-			var(--color-surface-50, white)
-		);
-		color: color-mix(in srgb, var(--color-primary-500, #2563eb) 82%, var(--color-surface-900));
-	}
-
 	.artifact-body {
-		padding: 0.9rem 0.95rem 1rem;
+		padding: 0 0 1.5rem;
 		font-size: 0.9rem;
 	}
 
 	.artifact-body > p:first-child {
 		margin: 0;
-		font-size: 1.06rem;
+		font-size: 1.14rem;
 		font-weight: 740;
 		line-height: 1.3;
 		color: var(--color-surface-900);
@@ -147,7 +110,9 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.38rem;
-		margin-top: 0.9rem;
+		margin-top: 1rem;
+		border-top: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 66%, transparent);
+		padding-top: 0.86rem;
 	}
 
 	.brief-grid {
@@ -233,18 +198,20 @@
 	.artifact-stack pre {
 		margin: 0.25rem 0 0;
 		padding: 0.6rem;
-		max-height: 16rem;
-		overflow: auto;
 		border-radius: 0.6rem;
 		background: color-mix(in srgb, var(--color-surface-100, oklch(0.91 0 0)) 70%, transparent);
 		font-size: 0.75rem;
 		line-height: 1.3;
+		overflow-wrap: anywhere;
+		white-space: pre-wrap;
 	}
 
 	.empty {
 		display: grid;
 		min-height: 16rem;
 		place-items: center;
+		border: 1px dashed color-mix(in srgb, var(--color-surface-300, #d4d4d8) 76%, transparent);
+		border-radius: 0.72rem;
 		border-style: dashed;
 		background: color-mix(in srgb, var(--color-surface-50, white) 56%, transparent);
 		color: var(--color-surface-500, #71717a);

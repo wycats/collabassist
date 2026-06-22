@@ -1,12 +1,18 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	let { rail, children }: { rail: Snippet; children: Snippet } = $props();
+	let { rail, identity, children }: { rail: Snippet; identity?: Snippet; children: Snippet } =
+		$props();
 </script>
 
 <main>
 	<header>
-		{@render rail()}
+		<div>
+			{@render rail()}
+			{#if identity}
+				{@render identity()}
+			{/if}
+		</div>
 	</header>
 	<div>
 		{@render children()}
@@ -35,6 +41,12 @@
 		padding: var(--canvas-gutter);
 	}
 
+	header > div {
+		display: grid;
+		min-width: 0;
+		gap: 0.72rem;
+	}
+
 	main > div {
 		min-height: 0;
 		overflow-y: visible;
@@ -51,6 +63,15 @@
 		main {
 			--canvas-gap: 1.1rem;
 			--canvas-gutter: clamp(1.15rem, 1.9vw, 1.55rem);
+		}
+
+		header {
+			position: sticky;
+			top: 0;
+			z-index: 5;
+			background: color-mix(in srgb, var(--color-surface-50, white) 94%, transparent);
+			box-shadow: 0 10px 24px hsl(220 20% 16% / 0.055);
+			backdrop-filter: blur(12px);
 		}
 	}
 </style>

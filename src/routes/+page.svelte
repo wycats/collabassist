@@ -523,6 +523,16 @@
 	>
 {/snippet}
 
+{#snippet WorkbenchIdentity()}
+	<section class="workbench-identity" aria-label="Pinned artifact">
+		<div>
+			<span>Artifact</span>
+			<strong>{activeArtifact?.data.brief.title ?? 'No pinned artifact yet'}</strong>
+		</div>
+		<span>{activeArtifact?.type ?? 'product-spec'}</span>
+	</section>
+{/snippet}
+
 <div class="app-shell" data-theme="cerberus">
 	<h1 class="sr-only">Collabassist</h1>
 	<Sidebar>
@@ -599,6 +609,9 @@
 	<Canvas>
 		{#snippet rail()}
 			<PlanningPanel onHeadChange={handleHeadChange} />
+		{/snippet}
+		{#snippet identity()}
+			{@render WorkbenchIdentity()}
 		{/snippet}
 
 		{#if refiningCard}
@@ -710,6 +723,62 @@
 		align-items: center;
 		justify-content: center;
 		padding: 0 !important;
+	}
+
+	.workbench-identity {
+		display: flex;
+		min-width: 0;
+		max-width: 100%;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		border-top: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 74%, transparent);
+		padding-top: 0.68rem;
+	}
+
+	.workbench-identity > div {
+		min-width: 0;
+	}
+
+	.workbench-identity span:first-child {
+		display: block;
+		font-size: 0.66rem;
+		font-weight: 750;
+		color: color-mix(
+			in srgb,
+			var(--color-surface-500, #71717a) 86%,
+			var(--color-surface-900, #18181b)
+		);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+	}
+
+	.workbench-identity strong {
+		display: block;
+		overflow: hidden;
+		margin-top: 0.1rem;
+		color: var(--color-surface-900);
+		font-size: 0.9rem;
+		font-weight: 720;
+		line-height: 1.2;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.workbench-identity > span:last-child {
+		flex-shrink: 0;
+		border-radius: 999px;
+		background: color-mix(
+			in srgb,
+			var(--color-primary-500, #2563eb) 10%,
+			var(--color-surface-50, white)
+		);
+		color: color-mix(in srgb, var(--color-primary-500, #2563eb) 82%, var(--color-surface-900));
+		padding: 0.16rem 0.62rem;
+		font-size: 0.62rem;
+		font-weight: 750;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 
 	@media (min-width: 768px) {

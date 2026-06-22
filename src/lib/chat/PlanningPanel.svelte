@@ -68,22 +68,19 @@
 
 <style>
 	section {
-		overflow: hidden;
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
-		border-radius: 0.78rem;
-		background: color-mix(in srgb, var(--color-surface-50, white) 95%, transparent);
-		box-shadow:
-			0 1px 2px hsl(220 18% 14% / 0.04),
-			0 8px 20px hsl(220 24% 14% / 0.045);
+		min-width: 0;
+		max-width: 100%;
+		overflow: visible;
 	}
 
 	header {
-		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 70%, transparent);
-		padding: 0.7rem 0.85rem;
+		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
+		padding: 0 0 0.55rem;
 	}
 
 	header > div {
 		display: flex;
+		min-width: 0;
 		align-items: center;
 		justify-content: space-between;
 		gap: 1rem;
@@ -120,7 +117,8 @@
 	}
 
 	.rail-body {
-		padding: 0.82rem 0.85rem;
+		min-width: 0;
+		padding: 0.64rem 0 0;
 		font-size: 0.86rem;
 	}
 
@@ -134,6 +132,8 @@
 	.rail-body > div {
 		position: relative;
 		display: flex;
+		min-width: 0;
+		max-width: 100%;
 		flex-direction: column;
 		gap: 0.72rem;
 	}
@@ -151,6 +151,8 @@
 		position: relative;
 		z-index: 1;
 		display: flex;
+		min-width: 0;
+		max-width: 100%;
 		align-items: flex-start;
 		gap: 0.58rem;
 	}
@@ -168,6 +170,7 @@
 
 	article p {
 		margin: 0;
+		overflow-wrap: anywhere;
 		font-size: 0.75rem;
 		line-height: 1.3;
 	}
@@ -194,7 +197,7 @@
 
 	@media (min-width: 900px) {
 		.rail-body {
-			padding: 0.78rem 0.85rem 0.85rem;
+			padding: 0.64rem 0 0;
 		}
 
 		.rail-body > div {
