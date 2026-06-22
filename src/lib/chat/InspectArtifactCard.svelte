@@ -154,13 +154,11 @@
 		display: grid;
 		gap: 0.5rem;
 		margin-top: 0.82rem;
+		border-block: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 64%, transparent);
 	}
 
 	.brief-grid > div {
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 56%, transparent);
-		border-radius: 0.56rem;
-		background: color-mix(in srgb, var(--color-surface-100, #f4f4f5) 32%, transparent);
-		padding: 0.58rem 0.65rem;
+		padding: 0.62rem 0;
 	}
 
 	.brief-grid span {
@@ -276,6 +274,11 @@
 	@media (min-width: 700px) {
 		.brief-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.brief-grid > div + div {
+			border-left: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 64%, transparent);
+			padding-left: 0.8rem;
 		}
 	}
 </style>

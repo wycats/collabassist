@@ -50,10 +50,8 @@
 	ul {
 		margin: 0;
 		padding: 0;
-		overflow: hidden;
-		border: 1px solid color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 58%, transparent);
-		border-radius: 0.62rem;
-		background: color-mix(in srgb, var(--color-surface-50, oklch(0.99 0 0)) 94%, transparent);
+		border-block: 1px solid
+			color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 58%, transparent);
 		list-style: none;
 	}
 
@@ -68,8 +66,9 @@
 		width: 100%;
 		gap: 0.58rem;
 		border: 0;
+		border-radius: 0.42rem;
 		background: transparent;
-		padding: 0.62rem 0.68rem;
+		padding: 0.62rem 0.1rem;
 		cursor: pointer;
 		font-family: inherit;
 		text-align: left;
@@ -128,12 +127,8 @@
 	}
 
 	@media (min-width: 768px) {
-		ul {
-			border-radius: 0.56rem;
-		}
-
 		button {
-			padding: 0.5rem 0.56rem;
+			padding: 0.5rem 0.1rem;
 		}
 
 		button > span {

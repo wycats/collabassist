@@ -714,9 +714,7 @@
 
 	@media (min-width: 768px) {
 		.app-shell {
-			height: 100dvh;
 			grid-template-columns: minmax(320px, 38vw) minmax(0, 1fr);
-			overflow: hidden;
 		}
 	}
 

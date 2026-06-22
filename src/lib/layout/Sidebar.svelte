@@ -37,21 +37,12 @@
 
 	footer {
 		flex-shrink: 0;
-		border-top: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 82%, transparent);
-		background: color-mix(in srgb, var(--color-surface-50, white) 82%, transparent);
 		padding: 0 0.9rem 0.9rem;
 	}
 
 	@media (min-width: 768px) {
-		aside {
-			height: 100dvh;
-			max-height: 100dvh;
-			overflow: hidden;
-		}
-
 		aside > div {
-			flex: 1;
-			overflow-y: auto;
+			overflow-y: visible;
 		}
 	}
 </style>

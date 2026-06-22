@@ -14,9 +14,8 @@
 
 <style>
 	section {
-		margin-top: 0.75rem;
-		border-top: 1px solid color-mix(in srgb, var(--color-surface-200, #e4e4e7) 72%, transparent);
-		padding: 0.9rem 0 0.35rem;
+		margin-top: 0.8rem;
+		padding: 0 0 0.35rem;
 	}
 
 	section > div {

@@ -1,8 +1,6 @@
 <script lang="ts">
 	import type { CardMessage } from '$lib/domain/message';
 	import type { SelectionSummaryCard as SelectionSummaryCardSpec } from '$lib/cards/types';
-	import { getOptionToken } from '$lib/domain/option-token';
-	import OptionToken from '$lib/ui/OptionToken.svelte';
 
 	type Props = {
 		message: CardMessage<SelectionSummaryCardSpec>;
@@ -12,23 +10,9 @@
 
 	let card = $derived(message.spec);
 	let phaseLabel = $derived(card.sourceCardKind === 'interpret' ? 'Interpretation' : 'Proposal');
-	let token = $derived(getOptionToken(card.selectionId));
 </script>
 
-<!-- Hybrid variant: vertical dot + compact arrow line
-
- - Dot + rail on the left keep this feeling like a lightweight
-   timeline/activity marker.
- - The inline arrow + label stays compact enough to fit on one
-   or two lines, with an optional second summary line.
--->
 <section class="summary" aria-label={`${phaseLabel} locked`}>
-	<div class="rail" aria-hidden="true">
-		<div class="rail-line"></div>
-		<div class="token">
-			<OptionToken {token} size="sm" />
-		</div>
-	</div>
 	<div class="body">
 		<p class="line">
 			<span class="phase">{phaseLabel} locked:</span>
@@ -42,36 +26,8 @@
 
 <style>
 	.summary {
-		display: grid;
-		grid-template-columns: auto minmax(0, 1fr);
-		align-items: center;
-		column-gap: 0.75rem;
-		padding-block: 0.25rem;
-	}
-
-	.rail {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding-inline-start: 0.5rem;
-	}
-
-	.rail-line {
-		position: absolute;
-		inset-block: 0;
-		left: 50%;
-		width: 1px;
-		transform: translateX(-50%);
-		background: color-mix(in srgb, var(--color-surface-200, oklch(0.81 0 0)) 70%, transparent);
-	}
-
-	.token {
-		position: relative;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		padding-block: 0.2rem;
+		padding-inline: 0.15rem;
 	}
 
 	.body {
